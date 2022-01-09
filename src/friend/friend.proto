@@ -1,0 +1,53 @@
+syntax="proto3";
+
+package friend;
+
+option go_package = ".;friend";
+
+message ApplyFriendRequest{
+    string sessionID = 1;
+    string networkID = 2;
+}
+message ApplyFriendResponse{
+    string applyID = 1;
+}
+
+message ApplyFriendListRequest{
+    string sessionID = 1;
+}
+message ApplyFriendListResponse{
+    string userID = 1;
+    repeated ApplyFriendDetail applys = 2;
+}
+message ApplyFriendDetail{
+    string applyID = 1;
+    string userID = 2;
+    string friendID = 3;
+    string nickname = 4;
+    string applyTime = 5;
+}
+
+message UnFriendRequest{
+    string sessionID = 1;
+    string networkID = 2;
+}
+message UnFriendResponse{
+    string userID = 1;
+}
+
+message ApplyReviewRequest{
+    string sessionID = 1;
+    string applyID = 2;
+    bool result = 3;
+}
+message ApplyReviewResponse{
+    string userID = 1;
+}
+
+
+service Friend{
+    rpc Apply(ApplyFriendRequest) returns (ApplyFriendResponse){};
+    rpc ApplyList(ApplyFriendListRequest) returns (ApplyFriendListResponse){};
+    rpc UnFriend(UnFriendRequest) returns (UnFriendResponse){};
+    rpc Review(ApplyReviewRequest) returns (ApplyReviewResponse){};
+}

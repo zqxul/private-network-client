@@ -1,0 +1,24 @@
+syntax="proto3";
+
+package rtc;
+
+option go_package = ".;rtc";
+
+message SessionDescription{
+    string type = 1;
+    string sdp = 2;
+}
+
+message RTCDescription {
+    string type = 1;
+    string localID = 2;
+    string remoteID = 3;
+    SessionDescription sdp = 4;
+    string candidate = 5;
+}
+
+service RTC {
+
+    rpc Signal(stream RTCDescription) returns (stream RTCDescription);
+
+}

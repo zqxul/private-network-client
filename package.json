@@ -1,25 +1,71 @@
 {
-  "name": "private-network-client",
+  "name": "electron-app",
   "version": "1.0.0",
-  "description": "client for private network",
-  "main": "index.js",
+  "description": "my first electron app",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack",
+    "rebuild": "electron-rebuild",
+    "start": "webpack && electron-forge start",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-forge package",
+    "make": "electron-forge make"
   },
-  "keywords": [
-    "private",
-    "network",
-    "client",
-    "block",
-    "chain",
-    "social",
-    "media",
-    "global",
-    "connect"
-  ],
-  "author": "josiah",
+  "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-react": "^7.16.0",
+    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+    "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "@grpc/grpc-js": "^1.4.5",
+    "autoprefixer": "^10.4.0",
+    "babel-loader": "^8.2.3",
+    "css-loader": "^6.5.1",
+    "electron": "^16.0.2",
+    "electron-rebuild": "^3.2.5",
+    "postcss": "^8.4.4",
+    "postcss-loader": "^6.2.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "style-loader": "^3.3.1",
+    "tailwindcss": "^3.0.0",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0"
+  },
   "dependencies": {
-    "@grpc/grpc-js": "^1.4.2"
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "electron_app"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }

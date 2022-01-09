@@ -14,26 +14,38 @@ message LoginResponse{
     string sessionID = 2;
 }
 
+message LogoutRequest{
+    string sessionID = 1;
+}
+message LogoutResponse{
+    string userID = 1;
+}
+
 message RegisterRequest{
     string username = 1;
-    string passowrd = 2;
+    string password = 2;
     string nickname = 3;
     string captchaID = 4;
     string captcha = 5;
 }
 message RegisterResponse{
-    uint32 userID = 1;
+    string userID = 1;
+    string networkID = 2;
 }
 
 message CaptchaRequest{
     string captchaID = 1;
+    uint32 width = 2;
+    uint32 height = 3;
 }
 message CaptchaResponse{
     string captchaID = 1;
+    string captcha = 2;
 }
 
 service Auth{
     rpc Login(LoginRequest) returns (LoginResponse){};
+    rpc Logout(LogoutRequest) returns (LogoutResponse){};
     rpc Register(RegisterRequest) returns (RegisterResponse){};
     rpc Captcha(CaptchaRequest) returns (CaptchaResponse){};
 }

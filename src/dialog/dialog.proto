@@ -1,0 +1,34 @@
+syntax="proto3";
+
+package dialog;
+
+option go_package = ".;dialog";
+
+
+message CreateRequest{
+    string sessionID = 1;
+    string remoteID = 2;
+}
+message CreateResponse{
+    string dialogID = 2;
+}
+
+
+message ListRequest{
+    string sessionID = 1;
+}
+message ListResponse{
+    string userID = 1;
+    repeated DialogItem dialogs = 2;
+}
+message DialogItem{
+    string dialogID = 1;
+    string localID = 2;
+    string remoteID = 3;
+}
+
+
+service Dialog{
+    rpc Create(CreateRequest) returns (CreateResponse){};
+    rpc List(ListRequest) returns (ListResponse){};
+}

@@ -1,0 +1,59 @@
+syntax="proto3";
+
+package user;
+
+option go_package = ".;user";
+
+message ConversationListRequest{
+    string sessionID = 1;
+}
+message ConversationListResponse{
+    string userID = 1;
+    repeated ConversationDetail conversations = 2;
+}
+message ConversationDetail{
+    string sessionID = 1;
+    string userID = 2;
+    string nickname = 3;
+    string avartar = 4;
+    bool online = 5;
+}
+
+message AddrBookRequest{
+    string sessionID = 1;
+}
+message AddrBookResponse{
+    string userID = 1;
+    repeated UserBriefInfo friends = 2;
+}
+message UserBriefInfo{
+    string userID = 1;
+    string nickname = 2;
+    string networkID = 3;
+}
+
+message UserDetailRequest{
+    string sessionID = 1;
+}
+message UserDetailResponse{
+    string userID = 1;
+    string nickname = 2;
+    string networkID = 3;
+    bool online = 4;
+}
+
+message FindUserListRequest{
+    string sessionID = 1;
+    string keyword = 2;
+}
+message FindUserListResponse{
+    string userID = 1;
+    repeated UserBriefInfo users = 2;
+}
+
+service User{
+    rpc List(FindUserListRequest) returns (FindUserListResponse){};
+    rpc ConversationList(ConversationListRequest) returns (ConversationListResponse){};
+    rpc AddrBook(AddrBookRequest) returns (AddrBookResponse){};
+    rpc Detail(UserDetailRequest) returns (UserDetailResponse){};
+}

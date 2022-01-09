@@ -1,1 +1,5 @@
 node_modules
+out
+__reactpreview__
+reactpreview.config.js
+.DS_Store
