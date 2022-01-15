@@ -13,10 +13,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
 })
 
-var [handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
+var [handleCandidate, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
     [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
 contextBridge.exposeInMainWorld("electron", { ipcRenderer: { ...ipcRenderer, on: ipcRenderer.on } });
 
+contextBridge.exposeInMainWorld("setOnCandidate", handler => handleCandidate = handler)
 contextBridge.exposeInMainWorld("setOnOffer", handler => handleOffer = handler)
 contextBridge.exposeInMainWorld("setOnAnswer", handler => handleAnswer = handler)
 contextBridge.exposeInMainWorld("setOnEnd", handler => handleEnd = handler)
@@ -28,6 +29,9 @@ ipcRenderer.on('stream', (e, data) => {
     console.log('receive stream')
     console.log(data)
     switch (data.type) {
+        case 'candidate':
+            handleCandidate(data)
+            break
         case 'offer':
             handleOffer(data)
             break
@@ -69,7 +73,7 @@ if (!window.indexedDB) {
 var db;
 var request = window.indexedDB.open('dialog')
 request.onerror = function (event) {
-    console.log("Why didn't you allow my web app to use IndexedDB?!");
+    console.log("Why didn't you allow my web app to use IndexedDB?!", event.target.error);
 }
 request.onsuccess = function (event) {
     db = event.target.result;

@@ -54,7 +54,7 @@ export default function NetworkPanel({ sessionID, onOffer }) {
 
     // 视频电话、语音电话
     function handleCall(e) {
-        onOffer(e, selectedFriend)
+        onOffer(e, selectedFriend.networkID)
     }
 
     return (

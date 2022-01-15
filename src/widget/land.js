@@ -12,7 +12,7 @@ const ipcRenderer = electron.ipcRenderer
 export default function LandingPage({ handleLogout, sessionID, onOffer }) {
 
     const [state, setState] = useState({
-        tab: <SessionPanel sessionID={sessionID} />
+        tab: <NetworkPanel onOffer={onOffer} sessionID={sessionID} />
     });
 
     function handleSwitchTab(e) {

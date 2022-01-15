@@ -1,8 +1,7 @@
 const grpc = require('@grpc/grpc-js')
 const loader = require('@grpc/proto-loader')
+const HOST = require('../const')
 
-
-const HOST = 'localhost:3009'
 const PROTO_PATH = __dirname + '/user.proto';
 const pkgDef = loader.loadSync(PROTO_PATH)
 const UserProto = grpc.loadPackageDefinition(pkgDef)

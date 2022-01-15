@@ -7,6 +7,7 @@ function createWindow() {
         width: 800,
         height: 600,
         webPreferences: {
+            contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: true
         }
@@ -73,8 +74,7 @@ async function signal(e, sessionID) {
         SignalClient = null
     })
     SignalClient.on('data', data => {
-        console.log('stream server data: ')
-        console.log(data)
+        console.log('stream server data: ', data)
         mainWindow.webContents.send('stream', data);
     })
     SignalClient.on('end', () => {
