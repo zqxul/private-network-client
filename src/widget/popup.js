@@ -86,7 +86,7 @@ export default function CallPopup({ sessionID, remoteID, direction, onReject, on
                 <div className='h-3/4 flex flew-col p-2 relative'>
                     <span className='border p-2 absolute'>ringing</span>
                     <div className='flex flwx-row justify-center'>
-                        <video className='border w-1/2' id='video' autoPlay></video>
+                        <video className='border w-1/2' id='local' autoPlay></video>
                         <video className='border w-1/2' id='remote' autoPlay></video>
                     </div>
                 </div>

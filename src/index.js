@@ -24,27 +24,27 @@ function MainPage() {
 
     const [ringing, setRinging] = useState(false)
     const [direction, setDirection] = useState('in')
-    // const [rtcState, setRtcState] = useState({
-    //     sdp: null,
-    //     ice: ''
-    // })
 
     function createPeerConnection() {
+        if (pc) {
+            console.log('pc already setup')
+            return
+        }
         console.log('setup peer connection')
         // pc = new RTCPeerConnection()
         pc = new RTCPeerConnection({
             iceServers: [
-                // {
-                // urls: 'turn:numb.viagenie.ca',
-                // urls: 'stun:stun.schlund.de',
-                // credential: 'muazkh',
-                // username: 'webrtc@live.com'
-                // }
                 {
-                    urls: "turn:localhost",  // A TURN server
-                    username: "webrtc",
-                    credential: "turnserver"
+                    urls: 'turn:numb.viagenie.ca',
+                    // urls: 'stun:stun.schlund.de',
+                    credential: 'muazkh',
+                    username: 'webrtc@live.com'
                 }
+                // {
+                //     urls: "turn:localhost",  // A TURN server
+                //     username: "webrtc",
+                //     credential: "turnserver"
+                // }
             ]
         })
         pc.ontrack = handleTrack
@@ -56,32 +56,34 @@ function MainPage() {
     }
 
     function handleTrack(e) {
-        log("*** Track event ***");
+        console.log("*** Track event ***");
         document.getElementById("remote").srcObject = e.streams[0]
     }
 
     function handleICECandidate(e) {
-        console.log('*** ice candidate ', e.candidate)
+        console.log('*** ice candidate ')
         if (e.candidate) {
+            console.log('handle ice candidate ', e.candidate.candidate)
             ipcRenderer.send('signal', {
                 type: 'candidate',
                 localID: sessionID,
                 remoteID: remoteID,
                 candidate: {
-                    address: e.candidate.address,
                     candidate: e.candidate.candidate,
-                    component: e.candidate.component,
-                    foundation: e.candidate.foundation,
-                    port: e.candidate.port,
-                    priority: e.candidate.priority,
-                    protocol: e.candidate.protocol,
-                    relatedAddress: e.candidate.relatedAddress,
-                    relatedPort: e.candidate.relatedPort,
-                    sdpMid: e.candidate.sdpMid,
                     sdpMLineIndex: e.candidate.sdpMLineIndex,
-                    tcpType: e.candidate.tcpType,
-                    type: e.candidate.type,
-                    usernameFragment: e.candidate.usernameFragment
+                    sdpMid: e.candidate.sdpMid,
+                    usernameFragment: e.candidate.usernameFragment,
+                    // address: e.candidate.address,
+                    // candidate: e.candidate.candidate,
+                    // component: e.candidate.component,
+                    // foundation: e.candidate.foundation,
+                    // port: e.candidate.port,
+                    // priority: e.candidate.priority,
+                    // protocol: e.candidate.protocol,
+                    // relatedAddress: e.candidate.relatedAddress,
+                    // relatedPort: e.candidate.relatedPort,
+                    // tcpType: e.candidate.tcpType,
+                    // type: e.candidate.type,
                 }
             })
         }
@@ -165,90 +167,29 @@ function MainPage() {
         }
     }
 
-    function handleOffer(e, remoteID) {
+    function handleOffer(e, rid) {
         console.log('create offer to ' + remoteID)
-        remoteID = remoteID
+        remoteID = rid
         createPeerConnection()
         if (pc) {
+            handlePopup(e)
             console.log('add local stream')
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
-                    document.getElementById("video").srcObject = stream
+                    document.getElementById("local").srcObject = stream
                     stream.getTracks().forEach(track => {
                         pc.addTrack(track, stream)
                     })
                 }, err => {
                     console.log(err)
                 })
-            console.log('creat offering')
-            pc.createOffer()
-                .then(offer => pc.setLocalDescription(offer))
-                .then(() => {
-                    console.log('send offer to signal server')
-                    console.log(pc.localDescription)
-                    ipcRenderer.send('signal', {
-                        type: 'offer',
-                        localID: sessionID,
-                        remoteID: remoteID,
-                        sdp: {
-                            type: pc.localDescription.type,
-                            sdp: pc.localDescription.sdp
-                        }
-                    })
-                }).then(() => {
-                    window.setOnOfferAck(msg => {
-
-                    })
-                }).then(() => {
-                    // on answer
-                    window.setOnAnswer(msg => {
-                        console.log('receive answer msg: ', msg)
-                        let sdp = new RTCSessionDescription(msg.sdp);
-                        console.log('set remote sdp: ', sdp)
-                        pc.setRemoteDescription(sdp)
-                        // console.log('set rtc state: ', rtcState)
-                        remoteID = msg.remoteID
-                        // setRtcState({
-                        //     remoteID: msg.remoteID,
-                        //     sdp: msg.sdp,
-                        //     ice: msg.ice
-                        // })
-                        // console.log('new rtc state: ', rtcState)
-                        setRinging(true)
-                    })
-                    // on end
-                    window.setOnEnd(msg => {
-                        console.log('receive end msg: ', msg)
-                        closeVideo()
-                        setRinging(false)
-                        clearRtc()
-                    })
-                })
-                .then(() => {
-                    handlePopup(e)
-                })
         }
     }
 
-    const handleAnswer = () => {
+    function handleAnswer() {
         console.log('create answer for ', remoteID)
         console.log('sessionID: ', state)
         console.log('remoteID: ', remoteID)
-        // if (rtcState.sdp) {
-        // createPeerConnection()
-        // let sdp = new RTCSessionDescription(rtcState.sdp);
-        // pc.setRemoteDescription(sdp)
-        // navigator.mediaDevices.getUserMedia({ video: true })
-        //     .then(stream => {
-        //         console.log('add answer stream')
-        //         document.getElementById("video").srcObject = stream
-        //         stream.getTracks().forEach(track => {
-        //             pc.addTrack(track, stream)
-        //         })
-        //     }, err => {
-        //         console.log(err)
-        //     })
-        // .then(() => pc.createAnswer())
         pc.createAnswer()
             .then(answer => pc.setLocalDescription(answer))
             .then(() => {
@@ -268,13 +209,16 @@ function MainPage() {
 
                 })
             }).then(() => {
-                // on end
-                window.setOnEnd(msg => {
-                    console.log('receive end msg: ', msg)
-                    closeVideo()
-                    setRinging(false)
-                    clearRtc()
-                })
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        console.log('add answer stream')
+                        document.getElementById("local").srcObject = stream
+                        stream.getTracks().forEach(track => {
+                            pc.addTrack(track, stream)
+                        })
+                    }, err => {
+                        console.log(err)
+                    })
             })
     }
 
@@ -283,7 +227,7 @@ function MainPage() {
             ipcRenderer.send('signal', {
                 type: 'end',
                 localID: state.sessionID,
-                remoteID: rtcState.remoteID,
+                remoteID: remoteID,
                 sdp: {
                     type: pc.localDescription.type,
                     sdp: pc.localDescription.sdp
@@ -299,41 +243,41 @@ function MainPage() {
     }
 
     const initOnSignal = () => {
-        // on candidate
-        window.setOnCandidate(msg => {
-            let candidate = new RTCIceCandidate(msg.candidate)
-            console.log("*** Adding received ICE candidate: " + JSON.stringify(candidate));
-            pc.addIceCandidate(candidate)
-                .then(_ => {
-                    console.log('add ice candidate success')
-                }).catch((err) => {
-                    console.log('add ice candidate err: ', err)
-                });
-        })
 
         // on offer
         window.setOnOffer(msg => {
             console.log('receive offer msg: ', msg)
             remoteID = msg.remoteID
-            // setRtcState({
-            //     remoteID: msg.remoteID,
-            //     sdp: msg.sdp,
-            //     ice: msg.ice
-            // })
+            setRinging(true)
             createPeerConnection()
             let sdp = new RTCSessionDescription(msg.sdp);
             pc.setRemoteDescription(sdp)
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    console.log('add answer stream')
-                    document.getElementById("video").srcObject = stream
-                    stream.getTracks().forEach(track => {
-                        pc.addTrack(track, stream)
-                    })
-                }, err => {
-                    console.log(err)
-                })
-            setRinging(true)
+        })
+
+        // on answer
+        window.setOnAnswer(msg => {
+            console.log('receive answer msg: ', msg)
+            let sdp = new RTCSessionDescription(msg.sdp);
+            console.log('set remote sdp: ', sdp)
+            pc.setRemoteDescription(sdp).then(() => {
+                remoteID = msg.remoteID
+                setRinging(true)
+            })
+        })
+
+        // on candidate
+        window.setOnCandidate(msg => {
+            console.log("candidate msg: ", msg.candidate)
+            if (pc.localDescription) {
+                let candidate = new RTCIceCandidate(msg.candidate)
+                console.log("*** Adding received ICE candidate: " + JSON.stringify(candidate));
+                pc.addIceCandidate(candidate)
+                    .then(_ => {
+                        console.log('add ice candidate success')
+                    }).catch((err) => {
+                        console.log('add ice candidate err: ', err)
+                    });
+            }
         })
 
         // on end
@@ -359,12 +303,7 @@ function MainPage() {
     }
 
     function clearRtc() {
-        console.log('clear rtc ', rtcState)
-        // setRtcState({
-        //     remoteID: '',
-        //     sdp: null,
-        //     ice: null
-        // })
+
     }
 
     function handlePopup(e) {
