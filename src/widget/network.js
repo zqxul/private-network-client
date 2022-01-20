@@ -43,7 +43,6 @@ export default function NetworkPanel({ sessionID, onOffer }) {
     function handleMessage(e) {
         e.preventDefault()
         console.log('create talk')
-        window.DB.deleteDialog('MIFSDc7ciMvqPJaSDZVHxHJP7MKsa3W74dzQJhbNfGWpOIGTnSWXlRLGA6DbIu94')
         window.DB.createDialog({
             id: selectedFriend.networkID,
             title: selectedFriend.nickname,

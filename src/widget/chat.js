@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react'
 import Avartar from './avartar'
 import { result } from 'lodash'
 
+const electron = window.electron
+
+const ipcRenderer = electron.ipcRenderer
+
 const messageList = [
     {
         id: 1,
@@ -40,7 +44,7 @@ export function SessionPanel({ sessionID }) {
     const [dialogs, setDialogs] = useState([])
 
     if (!load) {
-        window.DB.readAll(result => {
+        window.DB.readAllDialog(result => {
             console.log('current dialogs: ', dialogs, 'load dialogs: ', result)
             setLoad(true)
             setDialogs(result)
@@ -66,7 +70,7 @@ export function SessionPanel({ sessionID }) {
                 </div>
                 <DialogList currentID={state.currentID} dialogs={dialogs} handleSelect={handleSelect} />
             </div>
-            <SessionBox sessionID={state.currentID} />
+            <SessionBox sessionID={sessionID} remoteID={state.currentID} />
         </div>
     )
 }
@@ -136,20 +140,38 @@ function SessionItem({ id, imageUrl, title, overview, current, handleSelect }) {
     )
 }
 
-export function SessionBox({ sessionID }) {
+export function SessionBox({ sessionID, remoteID }) {
+
+    const [words, setWords] = useState([])
+
+    // load words
+    window.setOnMessage(data => {
+        window.DB.createDialogItem(data)
+        const newWords = [...words]
+        newWords.push(data)
+        setWords(newWords)
+    })
+
+    function handleSendAck(data) {
+        window.DB.createDialogItem(data)
+        const newWords = [...words]
+        newWords.push(data)
+        setWords(newWords)
+    }
+
     return sessionID ?
         (
             <div className='p-2 w-8/12 flex flex-col'>
-                <ToolBar sessionID={sessionID} />
-                <Dialogue sessionID={sessionID} />
-                <InputBox sessionID={sessionID} />
+                <ToolBar sessionID={sessionID} remoteID={remoteID} />
+                <Dialogue sessionID={sessionID} remoteID={remoteID} words={words} />
+                <InputBox sessionID={sessionID} remoteID={remoteID} handleSendAck={handleSendAck} />
             </div>
         ) : (
             <div className='p-2 w-8/12 flex flex-col'>nothing</div>
         )
 }
 
-function ToolBar({ sessionID }) {
+function ToolBar({ sessionID, remoteID }) {
     return (
         <div className='p-2 flex flex-row-reverse h-10'>
             <button className='m-1 text-sm'>dial</button>
@@ -158,7 +180,8 @@ function ToolBar({ sessionID }) {
     )
 }
 
-function Dialogue({ sessionID }) {
+function Dialogue({ sessionID, remoteID, words }) {
+
     return (
         <div className='m-1 p-4 border h-5/6 shadow flex flex-col overflow-y-auto overflow-x-clip'>
             <div className='mb-5 odd:text-right'>
@@ -177,7 +200,38 @@ function Dialogue({ sessionID }) {
     )
 }
 
-function InputBox({ sessionID }) {
+function InputBox({ sessionID, remoteID, handleSendAck }) {
+
+    const [message, setMessage] = useState({
+        type: null,
+        body: null
+    })
+
+    function handleChange(e) {
+        setMessage({
+            type: 'text',
+            body: e.target.value
+        })
+    }
+
+    function handleSendMessage(e) {
+        console.log("send message: ", message)
+        let enc = new TextEncoder()
+        let body = enc.encode(message.body)
+        let msg = {
+            type: 'message',
+            localID: sessionID,
+            remoteID: remoteID,
+            message: {
+                type: message.type,
+                body: body
+            }
+        }
+        ipcRenderer.send('signal', msg)
+        // save to indexedDB when received send ack
+        handleSendAck(msg)
+    }
+
     return (
         <div className='m-1 p-2 border h-1/6'>
             <div className='h-1/4 flex flex-row border-b border-dashed justify-between'>
@@ -187,7 +241,7 @@ function InputBox({ sessionID }) {
                 </ul>
                 <ul className='flex flex-row'>
                     <li className='m-1 text-xs'>
-                        <button>send</button>
+                        <button onClick={handleSendMessage}>send</button>
                     </li>
                     <li className='m-1 text-xs'>
                         <button>commit</button>
@@ -195,7 +249,7 @@ function InputBox({ sessionID }) {
                 </ul>
             </div>
             <div className='pt-2 pl-1 h-3/4'>
-                <input className='h-full w-full' placeholder='input text' />
+                <input className='h-full w-full' placeholder='input text' onChange={handleChange} />
             </div>
         </div >
     )

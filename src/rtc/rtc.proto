@@ -15,6 +15,7 @@ message RTCDescription {
     string remoteID = 3;
     SessionDescription sdp = 4;
     ICECandidate candidate = 5;
+    Message message = 6;
 }
 
 message ICECandidate {
@@ -22,6 +23,12 @@ message ICECandidate {
     string sdpMid = 2;
     uint32 sdpMLineIndex = 3;
     string usernameFragment = 4;
+}
+
+message Message{
+    string type = 1;
+    bytes body = 2;
+    uint64 timestamp = 3;
 }
 
 service RTC {

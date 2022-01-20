@@ -13,10 +13,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
 })
 
-var [handleCandidate, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
-    [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
+var [handleMessage, handleMessageAck, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
+    [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
 contextBridge.exposeInMainWorld("electron", { ipcRenderer: { ...ipcRenderer, on: ipcRenderer.on } });
 
+contextBridge.exposeInMainWorld("setOnMessage", handler => handleMessage = handler)
 contextBridge.exposeInMainWorld("setOnCandidate", handler => handleCandidate = handler)
 contextBridge.exposeInMainWorld("setOnOffer", handler => handleOffer = handler)
 contextBridge.exposeInMainWorld("setOnAnswer", handler => handleAnswer = handler)
@@ -29,6 +30,9 @@ ipcRenderer.on('stream', (e, data) => {
     console.log('receive stream')
     console.log(data)
     switch (data.type) {
+        case 'message':
+            handleMessage(data)
+            break
         case 'candidate':
             handleCandidate(data)
             break
@@ -40,6 +44,12 @@ ipcRenderer.on('stream', (e, data) => {
             break
         case 'end':
             handleEnd(data)
+            break
+        case 'message-ack':
+            handleMessageAck(data)
+            break
+        case 'candidate-ack':
+            handleCandidateAck(data)
             break
         case 'offer-ack':
             handleOfferAck(data)
@@ -113,7 +123,7 @@ function readDialog(key) {
     let os = tx.objectStore('dialog')
     os.get(key)
 }
-function readAll(handleSuccess) {
+function readAllDialog(handleSuccess) {
     let tx = openTx(['dialog'], 'readonly')
     let os = tx.objectStore('dialog')
     let request = os.getAll()
@@ -121,7 +131,7 @@ function readAll(handleSuccess) {
         console.log('read all dialog error: ', event.target.error)
     }
     request.onsuccess = function (event) {
-        console.log('read all result: ', request.result)
+        console.log('read all dialog result: ', request.result)
         handleSuccess(request.result)
         return
     }
@@ -136,10 +146,33 @@ function deleteDialog(key) {
     let os = tx.objectStore('dialog')
     os.delete(key)
 }
+function createDialogItem(data) {
+    let tx = openTx(['dialog_item'], 'readwrite')
+    let os = tx.objectStore('dialog_item')
+    var request = os.add(data)
+    request.onerror = function (event) {
+        console.log('add dialog item err: ' + event.target.error)
+    }
+}
+function readAllDialogItem(handleSuccess) {
+    let tx = openTx(['dialog'], 'readonly')
+    let os = tx.objectStore('dialog')
+    let request = os.getAll()
+    request.onerror = function (event) {
+        console.log('read all dialog item error: ', event.target.error)
+    }
+    request.onsuccess = function (event) {
+        console.log('read all dialog item result: ', request.result)
+        handleSuccess(request.result)
+        return
+    }
+}
 contextBridge.exposeInMainWorld('DB', {
     createDialog: createDialog,
     readDialog: readDialog,
-    readAll: readAll,
+    readAllDialog: readAllDialog,
     updateDialog: updateDialog,
-    deleteDialog: deleteDialog
+    deleteDialog: deleteDialog,
+    createDialogItem: createDialogItem,
+    readAllDialogItem: readAllDialogItem
 })

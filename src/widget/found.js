@@ -14,6 +14,18 @@ export default function FoundPage({ sessionID }) {
         setSelected(e.target.value)
     }
 
+    let current = null
+    switch (selected) {
+        case 'FindFriend':
+            current = <FindFriend sessionID={sessionID} />
+            break
+        case 'FriendApply':
+            current = <FriendApply sessionID={sessionID} />
+            break
+        default:
+            break
+    }
+
     return (
         <div>
             <ol className='flex flex-row text-sm p-2'>
@@ -25,7 +37,7 @@ export default function FoundPage({ sessionID }) {
                 </li>
             </ol>
             <div className='p-2'>
-                {selected === 'FindFriend' ? <FindFriend sessionID={sessionID} /> : (selected === 'FriendApply' ? <FriendApply sessionID={sessionID} /> : null)}
+                {current}
             </div>
         </div>
     )

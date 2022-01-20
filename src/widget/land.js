@@ -5,6 +5,7 @@ import FoundPage from './found'
 import NetworkPanel from './network'
 import NavBar from './nav'
 import CallPopup from './popup'
+import { LivePage } from './live'
 
 const electron = window.electron
 
@@ -40,7 +41,7 @@ export default function LandingPage({ handleLogout, sessionID, onOffer }) {
                 break
             case 'Live':
                 setState({
-                    tab: <div>live</div>
+                    tab: <LivePage />
                 })
                 break
             default:

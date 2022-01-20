@@ -72,18 +72,7 @@ function MainPage() {
                     candidate: e.candidate.candidate,
                     sdpMLineIndex: e.candidate.sdpMLineIndex,
                     sdpMid: e.candidate.sdpMid,
-                    usernameFragment: e.candidate.usernameFragment,
-                    // address: e.candidate.address,
-                    // candidate: e.candidate.candidate,
-                    // component: e.candidate.component,
-                    // foundation: e.candidate.foundation,
-                    // port: e.candidate.port,
-                    // priority: e.candidate.priority,
-                    // protocol: e.candidate.protocol,
-                    // relatedAddress: e.candidate.relatedAddress,
-                    // relatedPort: e.candidate.relatedPort,
-                    // tcpType: e.candidate.tcpType,
-                    // type: e.candidate.type,
+                    usernameFragment: e.candidate.usernameFragment
                 }
             })
         }

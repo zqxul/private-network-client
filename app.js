@@ -55,12 +55,15 @@ ipcMain.on('login', (e, ...args) => {
     })
 })
 
+const buffer = require('node:buffer')
 const RtcClient = require('./src/rtc/rtc')
 ipcMain.on('signal', (e, ...args) => {
     console.log('signaling', args[0])
     if (SignalClient) {
         SignalClient.write(args[0])
     }
+
+
 })
 var SignalClient
 async function signal(e, sessionID) {
