@@ -9,7 +9,7 @@
 
 ## 技术找
     包管理：npm
-    通信方式：grpc
+    通信方式：grpc + nodejs
     应用搭建：electron
     界面交互：react
     服务端：golang
