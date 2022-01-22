@@ -133,6 +133,10 @@ export function HostPage({ sessionID }) {
                                 sourceBuffer.appendBuffer(buffer)
                             }
                         })
+
+                        // chunk.data.arrayBuffer().then(buffer => {
+                        //     console.log('buffer:', new Uint8Array(buffer))
+                        // })
                     }
                     liveingRecorder.start(2000)
                 }, false)
