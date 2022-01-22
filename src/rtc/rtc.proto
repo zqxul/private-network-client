@@ -16,6 +16,7 @@ message RTCDescription {
     SessionDescription sdp = 4;
     ICECandidate candidate = 5;
     Message message = 6;
+    bytes stream = 7;
 }
 
 message ICECandidate {
@@ -28,7 +29,7 @@ message ICECandidate {
 message Message{
     string type = 1;
     bytes body = 2;
-    uint64 timestamp = 3;
+    int64 timestamp = 3;
 }
 
 service RTC {

@@ -41,7 +41,7 @@ export default function LandingPage({ handleLogout, sessionID, onOffer }) {
                 break
             case 'Live':
                 setState({
-                    tab: <LivePage />
+                    tab: <LivePage sessionID={sessionID} />
                 })
                 break
             default:

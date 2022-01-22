@@ -155,14 +155,60 @@ ipcMain.on('addrBook', (e, ...args) => {
     })
 })
 
+const RoomClient = require('./src/room/room')
+ipcMain.on('list', (e, ...args) => {
+    console.log('list rooms request:', args[0])
+    RoomClient.List(args[0], (err, data) => {
+        if (err) {
+            console.log('list rooms err ', err)
+        }
+        e.returnValue = data
+    })
+})
+ipcMain.on('new', (e, ...args) => {
+    console.log('new room request:', args[0])
+    RoomClient.New(args[0], (err, data) => {
+        if (err) {
+            console.log('new room err ', err)
+        }
+        e.returnValue = data
+    })
+})
+ipcMain.on('close', (e, ...args) => {
+    console.log('close room request:', args[0])
+    RoomClient.Close(args[0], (err, data) => {
+        if (err) {
+            console.log('close room err ', err)
+        }
+        e.returnValue = data
+    })
+})
+ipcMain.on('enter', (e, ...args) => {
+    console.log('enter room request:', args[0])
+    RoomClient.Enter(args[0], (err, data) => {
+        if (err) {
+            console.log('enter room err ', err)
+        }
+        e.returnValue = data
+    })
+})
+ipcMain.on('exit', (e, ...args) => {
+    console.log('exit room request:', args[0])
+    RoomClient.Exit(args[0], (err, data) => {
+        if (err) {
+            console.log('exit room err ', err)
+        }
+        e.returnValue = data
+    })
+})
+
 const FriendClient = require('./src/friend/friend')
-const { PureComponent } = require('react')
 const { data } = require('autoprefixer')
 ipcMain.on('apply', (e, ...args) => {
     console.log('apply friend request:', args[0])
     FriendClient.Apply(args[0], (err, data) => {
         if (err) {
-            console.log('apply friend err: ' + err)
+            console.log('apply friend err: ', err)
             e.returnValue = { err: err }
         }
         e.returnValue = data

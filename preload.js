@@ -13,10 +13,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
 })
 
-var [handleMessage, handleMessageAck, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
-    [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
+var [handleLiveStream, handleMessage, handleMessageAck, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
+    [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
 contextBridge.exposeInMainWorld("electron", { ipcRenderer: { ...ipcRenderer, on: ipcRenderer.on } });
 
+contextBridge.exposeInMainWorld("setOnLiveStream", handler => handleLiveStream = handler)
 contextBridge.exposeInMainWorld("setOnMessage", handler => handleMessage = handler)
 contextBridge.exposeInMainWorld("setOnCandidate", handler => handleCandidate = handler)
 contextBridge.exposeInMainWorld("setOnOffer", handler => handleOffer = handler)
@@ -30,6 +31,9 @@ ipcRenderer.on('stream', (e, data) => {
     console.log('receive stream')
     console.log(data)
     switch (data.type) {
+        case 'live':
+            handleLiveStream(data)
+            break
         case 'message':
             handleMessage(data)
             break

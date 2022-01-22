@@ -1,0 +1,64 @@
+syntax="proto3";
+
+package room;
+
+option go_package = ".;room";
+
+message ListRoomRequest{
+    string sessionID = 1;
+    uint32 page = 2;
+    uint32 size = 3;
+}
+message RoomInfo{
+    string roomID = 1;
+    string owner = 2;
+    int64 seats = 3;
+    int64 timestamp = 4;
+}
+message ListRoomResponse{
+    string userID = 1;
+    uint64 total = 2;
+    repeated RoomInfo list = 3;
+}
+
+message NewRoomRequest{
+    string sessionID = 1;
+}
+message NewRoomResponse{
+    string userID = 1;
+    string roomID = 2;
+}
+
+message CloseRoomRequest{
+    string sessionID = 1;
+}
+message CloseRoomResponse{
+    string userID = 1;
+    string roomID = 2;
+}
+
+message EnterRoomRequest{
+    string sessionID = 1;
+    string roomID = 2;
+}
+message EnterRoomResponse{
+    string userID = 1;
+    string hostID = 2;
+}
+
+message ExitRoomRequest{
+    string sessionID = 1;
+    string roomID = 2;
+}
+message ExitRoomResponse{
+    string userID = 1;
+    string hostID = 2;
+}
+
+service Room{
+    rpc List(ListRoomRequest) returns (ListRoomResponse);
+    rpc New(NewRoomRequest) returns (NewRoomResponse);
+    rpc Close(CloseRoomRequest) returns (CloseRoomResponse);
+    rpc Enter(EnterRoomRequest) returns (EnterRoomResponse);
+    rpc Exit(ExitRoomRequest) returns (ExitRoomResponse);
+}
