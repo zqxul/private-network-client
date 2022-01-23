@@ -34,7 +34,7 @@ const messageList = [
     }
 ]
 
-export function SessionPanel({ sessionID }) {
+export function SessionPanel({ sessionID, handleVideoCallOut, onSelected }) {
 
     const [state, setstate] = useState({
         currentID: null,
@@ -60,6 +60,7 @@ export function SessionPanel({ sessionID }) {
         setstate({
             currentID: selectedID
         })
+        onSelected(selectedID)
     }
 
     return (
@@ -70,7 +71,7 @@ export function SessionPanel({ sessionID }) {
                 </div>
                 <DialogList currentID={state.currentID} dialogs={dialogs} handleSelect={handleSelect} />
             </div>
-            <SessionBox sessionID={sessionID} remoteID={state.currentID} />
+            <SessionBox sessionID={sessionID} remoteID={state.currentID} handleVideoCallOut={handleVideoCallOut} />
         </div>
     )
 }
@@ -140,7 +141,7 @@ function SessionItem({ id, imageUrl, title, overview, current, handleSelect }) {
     )
 }
 
-export function SessionBox({ sessionID, remoteID }) {
+export function SessionBox({ sessionID, remoteID, handleVideoCallOut }) {
 
     const [words, setWords] = useState([])
 
@@ -162,7 +163,7 @@ export function SessionBox({ sessionID, remoteID }) {
     return sessionID ?
         (
             <div className='p-2 w-8/12 flex flex-col'>
-                <ToolBar sessionID={sessionID} remoteID={remoteID} />
+                <ToolBar sessionID={sessionID} handleVideoCallOut={handleVideoCallOut} />
                 <Dialogue sessionID={sessionID} remoteID={remoteID} words={words} />
                 <InputBox sessionID={sessionID} remoteID={remoteID} handleSendAck={handleSendAck} />
             </div>
@@ -171,10 +172,11 @@ export function SessionBox({ sessionID, remoteID }) {
         )
 }
 
-function ToolBar({ sessionID, remoteID }) {
+function ToolBar({ sessionID, handleVideoCallOut }) {
+
     return (
         <div className='p-2 flex flex-row-reverse h-10'>
-            <button className='m-1 text-sm'><i className='bi bi-camera-video-fill'></i></button>
+            <button className='m-1 text-sm' onClick={handleVideoCallOut}><i className='bi bi-camera-video-fill'></i></button>
             <button className='m-1 text-sm'><i className="bi bi-voicemail"></i></button>
         </div>
     )

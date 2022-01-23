@@ -156,12 +156,15 @@ function MainPage() {
         }
     }
 
-    function handleOffer(e, rid) {
+    function handleSelected(selectedID) {
+        remoteID = selectedID
+    }
+
+    function handleVideoCallOut() {
         console.log('create offer to ' + remoteID)
-        remoteID = rid
         createPeerConnection()
         if (pc) {
-            handlePopup(e)
+            handlePopup('out')
             console.log('add local stream')
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
@@ -223,7 +226,7 @@ function MainPage() {
                 }
             })
             window.setOnEndAck(msg => {
-
+                closeVideo()
             })
             closeVideo()
         }
@@ -295,9 +298,9 @@ function MainPage() {
 
     }
 
-    function handlePopup(e) {
+    function handlePopup(direction) {
         setRinging(true)
-        setDirection(e.target.value)
+        setDirection(direction)
     }
 
     function handleReject() {
@@ -327,7 +330,7 @@ function MainPage() {
     return (
         state.sessionID && state.timeout > 0 ?
             <div className='static'>
-                <LandingPage handleLogout={handleLogout} onOffer={handleOffer} sessionID={state.sessionID} />
+                <LandingPage handleLogout={handleLogout} handleVideoCallOut={handleVideoCallOut} sessionID={state.sessionID} onSelected={handleSelected} />
                 {
                     ringing ? (
                         <CallPopup sessionID={state.sessionID} direction={direction} onReject={handleReject} onAnswer={handleAnswer} onHangup={handleHangup} remoteID={remoteID} />

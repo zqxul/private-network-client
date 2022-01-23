@@ -10,10 +10,10 @@ import { LivePage } from './live'
 const electron = window.electron
 
 const ipcRenderer = electron.ipcRenderer
-export default function LandingPage({ handleLogout, sessionID, onOffer }) {
+export default function LandingPage({ handleLogout, sessionID, handleVideoCallOut, onSelected }) {
 
     const [state, setState] = useState({
-        tab: <NetworkPanel onOffer={onOffer} sessionID={sessionID} />
+        tab: <NetworkPanel sessionID={sessionID} />
     });
 
     function handleSwitchTab(e) {
@@ -21,12 +21,12 @@ export default function LandingPage({ handleLogout, sessionID, onOffer }) {
         switch (e.target.id) {
             case 'Chat':
                 setState({
-                    tab: <SessionPanel sessionID={sessionID} />
+                    tab: <SessionPanel sessionID={sessionID} handleVideoCallOut={handleVideoCallOut} onSelected={onSelected} />
                 })
                 break
             case 'Network':
                 setState({
-                    tab: <NetworkPanel onOffer={onOffer} sessionID={sessionID} />
+                    tab: <NetworkPanel sessionID={sessionID} />
                 })
                 break
             case 'Found':

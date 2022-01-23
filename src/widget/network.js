@@ -11,7 +11,7 @@ function loadFriends(sessionID) {
         sessionID: sessionID
     })
 }
-export default function NetworkPanel({ sessionID, onOffer }) {
+export default function NetworkPanel({ sessionID }) {
 
     let result = loadFriends(sessionID)
     let initFriends = result && result.friends ? result.friends : []
@@ -39,21 +39,16 @@ export default function NetworkPanel({ sessionID, onOffer }) {
         setselectedFriend(info)
     }
 
-    // 文本消息、语音消息
-    function handleMessage(e) {
+    // 新建会话
+    function handleNewSession(e) {
         e.preventDefault()
-        console.log('create talk')
+        console.log('create session')
         window.DB.createDialog({
             id: selectedFriend.networkID,
             title: selectedFriend.nickname,
             imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
             overview: 'about what'
         })
-    }
-
-    // 视频电话、语音电话
-    function handleCall(e) {
-        onOffer(e, selectedFriend.networkID)
     }
 
     return (
@@ -76,8 +71,7 @@ export default function NetworkPanel({ sessionID, onOffer }) {
                         <div>相册</div>
                         <div>说说</div>
                         <div className='flex flex-rows space-x-3 text-xs font-thin'>
-                            <button className='border bg-sky-400 p-2' onClick={handleMessage}>talk</button>
-                            <button className='border bg-lime-500 p-2' value='out' onClick={handleCall}>call</button>
+                            <button className='border bg-sky-400 p-2' onClick={handleNewSession}>新建会话</button>
                         </div>
                     </div> : null
             }
