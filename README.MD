@@ -22,6 +22,6 @@
 
 ## 界面展示
 
-[![登录界面](/assets/images/index.jpg "Chat")](https://github.com/zqxul/private-network-client/blob/master/assets/images/index.jpg)
+[![登录界面](/assets/images/index.jpg "Index")](https://github.com/zqxul/private-network-client/blob/master/assets/images/index.jpg)
 
 [![聊天界面](/assets/images/chat.jpg "Chat")](https://github.com/zqxul/private-network-client/blob/master/assets/images/chat.jpg)
