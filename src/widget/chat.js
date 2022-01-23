@@ -174,8 +174,8 @@ export function SessionBox({ sessionID, remoteID }) {
 function ToolBar({ sessionID, remoteID }) {
     return (
         <div className='p-2 flex flex-row-reverse h-10'>
-            <button className='m-1 text-sm'>dial</button>
-            <button className='m-1 text-sm'>voice</button>
+            <button className='m-1 text-sm'><i className='bi bi-camera-video-fill'></i></button>
+            <button className='m-1 text-sm'><i className="bi bi-voicemail"></i></button>
         </div>
     )
 }
@@ -236,20 +236,17 @@ function InputBox({ sessionID, remoteID, handleSendAck }) {
         <div className='m-1 p-2 border h-1/6'>
             <div className='h-1/4 flex flex-row border-b border-dashed justify-between'>
                 <ul className='flex flex-row'>
-                    <li className='m-1 border text-sm'>a</li>
-                    <li className='m-1 border text-sm'>b</li>
+                    <li className='m-1 border text-sm'><i className="bi bi-emoji-smile"></i></li>
+                    <li className='m-1 border text-sm'><i className="bi bi-images"></i></li>
+                    <li className='m-1 border text-sm'><i className="bi bi-files"></i></li>
+                    <li className='m-1 border text-sm'><i className="bi bi-camera"></i></li>
+                    <li className='m-1 border text-sm'><i className="bi bi-webcam"></i></li>
+                    <li className='m-1 border text-sm'><i className="bi bi-mic"></i></li>
                 </ul>
-                <ul className='flex flex-row'>
-                    <li className='m-1 text-xs'>
-                        <button onClick={handleSendMessage}>send</button>
-                    </li>
-                    <li className='m-1 text-xs'>
-                        <button>commit</button>
-                    </li>
-                </ul>
-            </div>
-            <div className='pt-2 pl-1 h-3/4'>
+            </div >
+            <div className='pt-2 pl-1 h-3/4 flex flex-row'>
                 <input className='h-full w-full' placeholder='input text' onChange={handleChange} />
+                <button className='w-2/12 text-3xl' onClick={handleSendMessage}><i className='bi bi-send-fill'></i></button>
             </div>
         </div >
     )

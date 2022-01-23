@@ -8,11 +8,12 @@
     好友
 
 ## 技术找
-    包管理：npm
-    通信方式：grpc + nodejs
-    应用搭建：electron
-    界面交互：react
-    服务端：golang
+    包管理：NPM
+    通信方式：GRPC + NodeJS
+    应用搭建：Electron
+    界面交互：React
+    客户端存储：IndexedDB
+    服务端：Golang
 
 
 ## 运行步骤

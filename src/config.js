@@ -3,27 +3,27 @@ export const navs = [
     {
         shortname: 'C',
         name: 'Chat',
-        logo: '',
+        icon: 'bi bi-chat',
         description: ''
     }, {
         shortname: 'N',
         name: 'Network',
-        logo: '',
+        icon: 'bi bi-people-fill',
         description: ''
     }, {
         shortname: 'F',
         name: 'Found',
-        logo: '',
+        icon: 'bi bi-search',
         description: ''
     }, {
         shortname: 'P',
         name: 'Post',
-        logo: '',
+        icon: 'bi bi-textarea-t',
         description: ''
     }, {
         shortname: 'L',
         name: 'Live',
-        logo: '',
+        icon: 'bi bi-webcam-fill',
         description: ''
     }
 ]

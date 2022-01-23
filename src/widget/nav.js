@@ -1,4 +1,5 @@
 import 'tailwindcss/tailwind.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import React from 'react'
 import { navs } from '../config'
 
@@ -13,15 +14,15 @@ export default function NavBar({ handleSwitchTab, handleLogout }) {
                 {
                     navs.map(nav =>
                         <li key={nav.name}>
-                            <button value={nav.name} onClick={handleSwitchTab}>{nav.shortname}</button>
+                            <button value={nav.name} onClick={handleSwitchTab}><i id={nav.name} className={nav.icon}></i></button>
                         </li>
                     )
                 }
-            </ol>
+            </ol >
             <div className='w-full h-12 flex flex-col space-y-1 align-middle justify-center'>
-                <button className='border w-6 h-6 rounded-full' onClick={handleLogout}>Q</button>
-                <button className='border w-6 h-6 rounded-full'>S</button>
-            </div>
+                <button className='border w-6 h-6 rounded-full' onClick={handleLogout}><i className='bi bi-box-arrow-left'></i></button>
+                <button className='border w-6 h-6 rounded-full'><i className='bi bi-gear-fill'></i></button>
+            </div >
         </div >
 
     )

@@ -18,7 +18,7 @@ export default function LandingPage({ handleLogout, sessionID, onOffer }) {
 
     function handleSwitchTab(e) {
         e.preventDefault()
-        switch (e.target.value) {
+        switch (e.target.id) {
             case 'Chat':
                 setState({
                     tab: <SessionPanel sessionID={sessionID} />
