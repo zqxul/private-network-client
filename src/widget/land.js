@@ -10,7 +10,7 @@ import { LivePage } from './live'
 const electron = window.electron
 
 const ipcRenderer = electron.ipcRenderer
-export default function LandingPage({ handleLogout, sessionID, handleVideoCallOut, onSelected }) {
+export default function LandingPage({ handleLogout, sessionID, handleVideoCallOut, handleVoiceCallOut, onSelected }) {
 
     const [state, setState] = useState({
         tab: <NetworkPanel sessionID={sessionID} />
@@ -21,7 +21,7 @@ export default function LandingPage({ handleLogout, sessionID, handleVideoCallOu
         switch (e.target.id) {
             case 'Chat':
                 setState({
-                    tab: <SessionPanel sessionID={sessionID} handleVideoCallOut={handleVideoCallOut} onSelected={onSelected} />
+                    tab: <SessionPanel sessionID={sessionID} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} onSelected={onSelected} />
                 })
                 break
             case 'Network':
@@ -36,12 +36,22 @@ export default function LandingPage({ handleLogout, sessionID, handleVideoCallOu
                 break
             case 'Post':
                 setState({
-                    tab: <div>post</div>
+                    tab: <div className='p-2'>post</div>
                 })
                 break
             case 'Live':
                 setState({
                     tab: <LivePage sessionID={sessionID} />
+                })
+                break
+            case 'Wallet':
+                setState({
+                    tab: <div className='p-2'>Wallet</div>
+                })
+                break
+            case 'Exchange':
+                setState({
+                    tab: <div className='p-2'>Exchange</div>
                 })
                 break
             default:

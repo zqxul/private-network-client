@@ -161,12 +161,30 @@ function MainPage() {
     }
 
     function handleVideoCallOut() {
-        console.log('create offer to ' + remoteID)
+        console.log('create video offer to ' + remoteID)
         createPeerConnection()
         if (pc) {
             handlePopup('out')
             console.log('add local stream')
-            navigator.mediaDevices.getUserMedia({ video: true })
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(stream => {
+                    document.getElementById("local").srcObject = stream
+                    stream.getTracks().forEach(track => {
+                        pc.addTrack(track, stream)
+                    })
+                }, err => {
+                    console.log(err)
+                })
+        }
+    }
+
+    function handleVoiceCallOut() {
+        console.log('create voice offer to ' + remoteID)
+        createPeerConnection()
+        if (pc) {
+            handlePopup('out')
+            console.log('add local stream')
+            navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     document.getElementById("local").srcObject = stream
                     stream.getTracks().forEach(track => {
@@ -330,7 +348,7 @@ function MainPage() {
     return (
         state.sessionID && state.timeout > 0 ?
             <div className='static'>
-                <LandingPage handleLogout={handleLogout} handleVideoCallOut={handleVideoCallOut} sessionID={state.sessionID} onSelected={handleSelected} />
+                <LandingPage handleLogout={handleLogout} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} sessionID={state.sessionID} onSelected={handleSelected} />
                 {
                     ringing ? (
                         <CallPopup sessionID={state.sessionID} direction={direction} onReject={handleReject} onAnswer={handleAnswer} onHangup={handleHangup} remoteID={remoteID} />

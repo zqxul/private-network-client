@@ -25,5 +25,15 @@ export const navs = [
         name: 'Live',
         icon: 'bi bi-webcam-fill',
         description: ''
+    }, {
+        shortname: 'W',
+        name: 'Wallet',
+        icon: 'bi bi-coin',
+        description: ''
+    }, {
+        shortname: 'E',
+        name: 'Exchange',
+        icon: 'bi bi-currency-exchange',
+        description: ''
     }
 ]

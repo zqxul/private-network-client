@@ -2,6 +2,7 @@ import 'tailwindcss/tailwind.css'
 import React, { useState, useEffect } from 'react'
 import Avartar from './avartar'
 import { result } from 'lodash'
+import { data } from 'autoprefixer'
 
 const electron = window.electron
 
@@ -34,7 +35,7 @@ const messageList = [
     }
 ]
 
-export function SessionPanel({ sessionID, handleVideoCallOut, onSelected }) {
+export function SessionPanel({ sessionID, handleVideoCallOut, handleVoiceCallOut, onSelected }) {
 
     const [state, setstate] = useState({
         currentID: null,
@@ -71,7 +72,7 @@ export function SessionPanel({ sessionID, handleVideoCallOut, onSelected }) {
                 </div>
                 <DialogList currentID={state.currentID} dialogs={dialogs} handleSelect={handleSelect} />
             </div>
-            <SessionBox sessionID={sessionID} remoteID={state.currentID} handleVideoCallOut={handleVideoCallOut} />
+            <SessionBox sessionID={sessionID} remoteID={state.currentID} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} />
         </div>
     )
 }
@@ -141,7 +142,7 @@ function SessionItem({ id, imageUrl, title, overview, current, handleSelect }) {
     )
 }
 
-export function SessionBox({ sessionID, remoteID, handleVideoCallOut }) {
+export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoiceCallOut }) {
 
     const [words, setWords] = useState([])
 
@@ -153,31 +154,32 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut }) {
         setWords(newWords)
     })
 
-    function handleSendAck(data) {
+    window.setOnMessageAck(data => {
+        console.log('send message ack: ', data)
         window.DB.createDialogItem(data)
         const newWords = [...words]
         newWords.push(data)
         setWords(newWords)
-    }
+    })
 
     return sessionID ?
         (
             <div className='p-2 w-8/12 flex flex-col'>
-                <ToolBar sessionID={sessionID} handleVideoCallOut={handleVideoCallOut} />
+                <ToolBar sessionID={sessionID} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} />
                 <Dialogue sessionID={sessionID} remoteID={remoteID} words={words} />
-                <InputBox sessionID={sessionID} remoteID={remoteID} handleSendAck={handleSendAck} />
+                <InputBox sessionID={sessionID} remoteID={remoteID} />
             </div>
         ) : (
             <div className='p-2 w-8/12 flex flex-col'>nothing</div>
         )
 }
 
-function ToolBar({ sessionID, handleVideoCallOut }) {
+function ToolBar({ sessionID, handleVideoCallOut, handleVoiceCallOut }) {
 
     return (
         <div className='p-2 flex flex-row-reverse h-10'>
             <button className='m-1 text-sm' onClick={handleVideoCallOut}><i className='bi bi-camera-video-fill'></i></button>
-            <button className='m-1 text-sm'><i className="bi bi-voicemail"></i></button>
+            <button className='m-1 text-sm' onClick={handleVoiceCallOut}><i className="bi-telephone-fill"></i></button>
         </div>
     )
 }
@@ -202,7 +204,7 @@ function Dialogue({ sessionID, remoteID, words }) {
     )
 }
 
-function InputBox({ sessionID, remoteID, handleSendAck }) {
+function InputBox({ sessionID, remoteID }) {
 
     const [message, setMessage] = useState({
         type: null,
@@ -230,8 +232,6 @@ function InputBox({ sessionID, remoteID, handleSendAck }) {
             }
         }
         ipcRenderer.send('signal', msg)
-        // save to indexedDB when received send ack
-        handleSendAck(msg)
     }
 
     return (
