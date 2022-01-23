@@ -298,6 +298,8 @@ function MainPage() {
             clearRtc()
         })
 
+        // on message
+        // save to indexedDB and update the number of new msg in nav chat
 
     }
 
