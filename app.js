@@ -131,12 +131,35 @@ ipcMain.on('listDialog', (e, ...args) => {
     })
 })
 
+const MsgClient = require('./src/msg/msg')
+ipcMain.on('fetchMsg', (e, ...args) => {
+    console.log('fetch message request: ', args[0])
+    MsgClient.Fetch(args[0], (err, data) => {
+        if (err) {
+            console.log('fetch message err: ', err)
+            e.returnValue = { err: err }
+        }
+        console.log('fetch message result: ', data)
+        e.returnValue = data
+    })
+})
+ipcMain.on('clearMsg', (e, ...args) => {
+    console.log('clear message request: ', args[0])
+    MsgClient.Clear(args[0], (err, data) => {
+        if (err) {
+            console.log('clear message err: ', err)
+            e.returnValue = { err: err }
+        }
+        e.returnValue = data
+    })
+})
+
 const UserClient = require('./src/user/user')
 ipcMain.on('findFriend', (e, ...args) => {
     console.log('find friend request:', args[0])
     UserClient.List(args[0], (err, data) => {
         if (err) {
-            console.log('find friend err: ' + err)
+            console.log('find friend err: ', err)
             e.returnValue = { err: err }
         }
         e.returnValue = data
@@ -151,6 +174,18 @@ ipcMain.on('addrBook', (e, ...args) => {
             console.log(err)
         }
         console.log(data)
+        e.returnValue = data
+    })
+})
+ipcMain.on('BriefInfos', (e, ...args) => {
+    console.log('brief infos request', args[0])
+    UserClient.BriefInfos(args[0], (err, data) => {
+        if (err) {
+            console.log('brief infos  err: ' + err)
+            e.returnValue = { err: err }
+            console.log(err)
+        }
+        console.log('brief infos result: ', data)
         e.returnValue = data
     })
 })

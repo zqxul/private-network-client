@@ -8,33 +8,6 @@ const electron = window.electron
 
 const ipcRenderer = electron.ipcRenderer
 
-const messageList = [
-    {
-        id: 1,
-        imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        title: 'wolun',
-        overview: 'about stock market'
-    },
-    {
-        id: 2,
-        imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        title: 'miles',
-        overview: 'about music concert'
-    },
-    {
-        id: 3,
-        imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        title: 'James',
-        overview: 'about basketball'
-    },
-    {
-        id: 4,
-        imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        title: 'C罗',
-        overview: 'about football'
-    }
-]
-
 export function SessionPanel({ sessionID, handleVideoCallOut, handleVoiceCallOut, onSelected }) {
 
     const [state, setstate] = useState({
@@ -45,10 +18,22 @@ export function SessionPanel({ sessionID, handleVideoCallOut, handleVoiceCallOut
     const [dialogs, setDialogs] = useState([])
 
     if (!load) {
-        window.DB.readAllDialog(result => {
-            console.log('current dialogs: ', dialogs, 'load dialogs: ', result)
-            setLoad(true)
-            setDialogs(result)
+        window.ReadDialogs(result => {
+            let remoteIDs = result.map(item => item.remoteID)
+            let briefInfoResult = ipcRenderer.sendSync('BriefInfos', { sessionID: sessionID, networkIDs: remoteIDs })
+            if (briefInfoResult && briefInfoResult.infos) {
+                let newDialogs = briefInfoResult.infos.map(item => {
+                    return {
+                        nickname: item.nickname,
+                        networkID: item.networkID,
+                        userID: item.userID
+                    }
+                })
+                console.log('current dialogs: ', dialogs, 'load dialogs: ', newDialogs)
+                setLoad(true)
+                setDialogs(newDialogs)
+            }
+
         })
     }
 
@@ -81,7 +66,7 @@ function DialogList({ currentID, dialogs, handleSelect }) {
     return (
         <div className='px-2 space-y-2 h-screen overflow-y-auto overflow-x-hidden'>
             {dialogs.map((dialog, index) =>
-                <SessionItem id={dialog.id} handleSelect={handleSelect} current={currentID === dialog.id} key={dialog.id} imageUrl={dialog.imageUrl} title={dialog.title} overview={dialog.overview} />
+                <SessionItem id={dialog.networkID} handleSelect={handleSelect} current={currentID === dialog.networkID} key={dialog.networkID} imageUrl={dialog.imageUrl} title={dialog.nickname} overview={dialog.nickname} />
             )}
         </div>
     )

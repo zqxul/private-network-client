@@ -43,12 +43,12 @@ export default function NetworkPanel({ sessionID }) {
     function handleNewSession(e) {
         e.preventDefault()
         console.log('create session')
-        window.DB.createDialog({
-            id: selectedFriend.networkID,
-            title: selectedFriend.nickname,
-            imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-            overview: 'about what'
-        })
+        // window.DB.createDialog({
+        //     id: selectedFriend.networkID,
+        //     title: selectedFriend.nickname,
+        //     imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+        //     overview: 'about what'
+        // })
     }
 
     return (

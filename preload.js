@@ -78,109 +78,183 @@ ipcRenderer.on('stream', (e, data) => {
 window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB ||
     window.msIndexedDB;
 
-window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction ||
+let TX = window.IDBTransaction || window.webkitIDBTransaction ||
     window.msIDBTransaction;
-window.IDBKeyRange = window.IDBKeyRange ||
-    window.webkitIDBKeyRange || window.msIDBKeyRange
+
+let KR = window.IDBKeyRange ||
+    window.webkitIDBKeyRange || window.msIDBKeyRange;
 
 if (!window.indexedDB) {
     window.alert("Your browser doesn't support a stable version of IndexedDB.")
 }
 
 
-var db;
-var request = window.indexedDB.open('dialog')
-request.onerror = function (event) {
-    console.log("Why didn't you allow my web app to use IndexedDB?!", event.target.error);
+// var db;
+// var request = window.indexedDB.open('dialog')
+// request.onerror = function (event) {
+//     console.log("Why didn't you allow my web app to use IndexedDB?!", event.target.error);
+// }
+// request.onsuccess = function (event) {
+//     db = event.target.result;
+//     console.log('db information:', db.name, db.version)
+// };
+// request.onupgradeneeded = function (event) {
+//     let db = event.target.result;
+//     let objectStore = db.createObjectStore("dialog", { keyPath: "id" });
+
+//     db.onerror = function (event) {
+//         console.error("Database error: " + event.target.errorCode);
+//     }
+// }
+
+
+let DB = null
+let DBRequest = window.indexedDB.open('hello_word', 2)
+DBRequest.onerror = e => {
+    console.log(e.target.error)
 }
-request.onsuccess = function (event) {
-    db = event.target.result;
-    console.log('db information:', db.name, db.version)
-};
-request.onupgradeneeded = function (event) {
-    let db = event.target.result;
-    let objectStore = db.createObjectStore("dialog", { keyPath: "id" });
-
-    db.onerror = function (event) {
-        console.error("Database error: " + event.target.errorCode);
+DBRequest.onsuccess = e => {
+    DB = e.target.result
+    console.log('db connect success: ', DB.name, DB.version)
+    // contextBridge.exposeInMainWorld('DB', { ...DB })
+    // contextBridge.exposeInMainWorld('OpenTX', OpenTX)
+}
+DBRequest.onupgradeneeded = e => {
+    DB = e.target.result
+    console.log(DB.name, ' db need upgrade, current version: ', DB.version)
+    let dialog = DB.createObjectStore('dialog', { keyPath: 'remoteID' })
+    let message = DB.createObjectStore('message', { keyPath: 'msgID' })
+    message.createIndex("remoteID", { unique: false });
+    DB.onerror = e => {
+        console.log(e.target.error)
     }
 }
 
-
-function openTx(storeName, mode) {
-    let tx = db.transaction(storeName, mode)
-    tx.oncomplete = function (event) {
-        console.log(storeName + ' transaction done!')
-    }
-    tx.onerror = function (event) {
-        console.log('create dialog error: ' + event.target.error)
-    }
+function OpenTX(storeNames, mode, oncomplete, onerror, onabort) {
+    let tx = DB.transaction(storeNames, mode)
+    tx.oncomplete = oncomplete
+    tx.onerror = onerror
+    tx.onabort = onabort
     return tx
 }
 
-function createDialog(data) {
-    let tx = openTx(['dialog'], 'readwrite')
-    let os = tx.objectStore('dialog')
-    var request = os.add(data)
-    request.onerror = function (event) {
-        console.log('add dialog err: ' + event.target.error)
+function SaveMessages(messages) {
+    console.log
+    let tx = OpenTX(['dialog', 'message'], 'readwrite', e => {
+        console.log('save message in indexedDB success')
+    }, e => {
+        console.log('save message open transaction failed', tx.error)
+    }, e => {
+        console.log('save message transaction abort ', tx.error)
+    })
+    let remoteIDs = messages.map(message => message.remoteID)
+    let uniqueRemoteIDs = Array.from(new Set(remoteIDs))
+    console.log('save message open transaction success, start to save to indexDB')
+    let dialogOS = tx.objectStore('dialog')
+    uniqueRemoteIDs.forEach(remoteID => {
+        dialogOS.put({
+            remoteID: remoteID
+        })
+    })
+    let messageOS = tx.objectStore('message')
+    messages.forEach(message => {
+        messageOS.put(message)
+    });
+}
+contextBridge.exposeInMainWorld('SaveMessages', SaveMessages)
+
+function ReadDialogs(onSuccess) {
+    let tx = OpenTX(['dialog', 'message'], 'readwrite', e => {
+        console.log('read dialogs success')
+    }, e => {
+        console.log('read dialogs open transaction failed', tx.error)
+    }, e => {
+        console.log('read dialogs transaction abort ', tx.error)
+    })
+    let request = tx.objectStore('dialog').getAll()
+    request.onsuccess = function (e) {
+        console.log('read dialogs result: ', request.result)
+        onSuccess(request.result)
     }
 }
-function readDialog(key) {
-    let tx = openTx(['dialog'], 'readonly')
-    let os = tx.objectStore('dialog')
-    os.get(key)
-}
-function readAllDialog(handleSuccess) {
-    let tx = openTx(['dialog'], 'readonly')
-    let os = tx.objectStore('dialog')
-    let request = os.getAll()
-    request.onerror = function (event) {
-        console.log('read all dialog error: ', event.target.error)
-    }
-    request.onsuccess = function (event) {
-        console.log('read all dialog result: ', request.result)
-        handleSuccess(request.result)
-        return
-    }
-}
-function updateDialog(data) {
-    let tx = openTx(['dialog'], 'readwrite')
-    let os = tx.objectStore('dialog')
-    let request = os.put(data)
-}
-function deleteDialog(key) {
-    let tx = openTx(['dialog'], 'readwrite')
-    let os = tx.objectStore('dialog')
-    os.delete(key)
-}
-function createDialogItem(data) {
-    let tx = openTx(['dialog_item'], 'readwrite')
-    let os = tx.objectStore('dialog_item')
-    var request = os.add(data)
-    request.onerror = function (event) {
-        console.log('add dialog item err: ' + event.target.error)
-    }
-}
-function readAllDialogItem(handleSuccess) {
-    let tx = openTx(['dialog'], 'readonly')
-    let os = tx.objectStore('dialog')
-    let request = os.getAll()
-    request.onerror = function (event) {
-        console.log('read all dialog item error: ', event.target.error)
-    }
-    request.onsuccess = function (event) {
-        console.log('read all dialog item result: ', request.result)
-        handleSuccess(request.result)
-        return
-    }
-}
-contextBridge.exposeInMainWorld('DB', {
-    createDialog: createDialog,
-    readDialog: readDialog,
-    readAllDialog: readAllDialog,
-    updateDialog: updateDialog,
-    deleteDialog: deleteDialog,
-    createDialogItem: createDialogItem,
-    readAllDialogItem: readAllDialogItem
-})
+contextBridge.exposeInMainWorld('ReadDialogs', ReadDialogs)
+
+
+
+// function openTx(storeName, mode) {
+//     let tx = DB.transaction(storeName, mode)
+//     tx.oncomplete = function (event) {
+//         console.log(storeName + ' transaction done!')
+//     }
+//     tx.onerror = function (event) {
+//         console.log('create dialog error: ' + event.target.error)
+//     }
+//     return tx
+// }
+
+// function createDialog(data) {
+//     let tx = openTx(['dialog'], 'readwrite')
+//     let os = tx.objectStore('dialog')
+//     var request = os.add(data)
+//     request.onerror = function (event) {
+//         console.log('add dialog err: ' + event.target.error)
+//     }
+// }
+// function readDialog(key) {
+//     let tx = openTx(['dialog'], 'readonly')
+//     let os = tx.objectStore('dialog')
+//     os.get(key)
+// }
+// function readAllDialog(handleSuccess) {
+//     let tx = openTx(['dialog'], 'readonly')
+//     let os = tx.objectStore('dialog')
+//     let request = os.getAll()
+//     request.onerror = function (event) {
+//         console.log('read all dialog error: ', event.target.error)
+//     }
+//     request.onsuccess = function (event) {
+//         console.log('read all dialog result: ', request.result)
+//         handleSuccess(request.result)
+//         return
+//     }
+// }
+// function updateDialog(data) {
+//     let tx = openTx(['dialog'], 'readwrite')
+//     let os = tx.objectStore('dialog')
+//     let request = os.put(data)
+// }
+// function deleteDialog(key) {
+//     let tx = openTx(['dialog'], 'readwrite')
+//     let os = tx.objectStore('dialog')
+//     os.delete(key)
+// }
+// function createDialogItem(data) {
+//     let tx = openTx(['dialog_item'], 'readwrite')
+//     let os = tx.objectStore('dialog_item')
+//     var request = os.add(data)
+//     request.onerror = function (event) {
+//         console.log('add dialog item err: ' + event.target.error)
+//     }
+// }
+// function readAllDialogItem(handleSuccess) {
+//     let tx = openTx(['dialog'], 'readonly')
+//     let os = tx.objectStore('dialog')
+//     let request = os.getAll()
+//     request.onerror = function (event) {
+//         console.log('read all dialog item error: ', event.target.error)
+//     }
+//     request.onsuccess = function (event) {
+//         console.log('read all dialog item result: ', request.result)
+//         handleSuccess(request.result)
+//         return
+//     }
+// }
+// contextBridge.exposeInMainWorld('DB', {
+//     createDialog: createDialog,
+//     readDialog: readDialog,
+//     readAllDialog: readAllDialog,
+//     updateDialog: updateDialog,
+//     deleteDialog: deleteDialog,
+//     createDialogItem: createDialogItem,
+//     readAllDialogItem: readAllDialogItem
+// })

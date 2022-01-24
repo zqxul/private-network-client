@@ -32,6 +32,15 @@ message UserBriefInfo{
     string networkID = 3;
 }
 
+message UserBriefInfoRequest{
+    string sessionID = 1;
+    repeated string networkIDs = 2;
+}
+message UserBriefInfoResponse{
+    string userID = 1;
+    repeated UserBriefInfo infos = 2;
+}
+
 message UserDetailRequest{
     string sessionID = 1;
 }
@@ -56,4 +65,5 @@ service User{
     rpc ConversationList(ConversationListRequest) returns (ConversationListResponse){};
     rpc AddrBook(AddrBookRequest) returns (AddrBookResponse){};
     rpc Detail(UserDetailRequest) returns (UserDetailResponse){};
+    rpc BriefInfos(UserBriefInfoRequest) returns (UserBriefInfoResponse){};
 }

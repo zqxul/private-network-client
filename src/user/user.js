@@ -12,7 +12,8 @@ const UserClient = {
     List: (request, callback) => UserService.List(request, callback),
     ConversationList: (request, callback) => UserService.ConversationList(request, callback),
     AddrBook: (request, callback) => UserService.AddrBook(request, callback),
-    Detail: (request, callback) => UserService.Detail(request, callback)
+    Detail: (request, callback) => UserService.Detail(request, callback),
+    BriefInfos: (request, callback) => UserService.BriefInfos(request, callback),
 }
 
 module.exports = UserClient

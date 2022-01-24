@@ -1,0 +1,40 @@
+syntax="proto3";
+
+package msg;
+
+option go_package = ".;msg";
+
+message FetchRequest{
+    string sessionID = 1;
+    int64 timestamp = 2;
+    uint64 limit = 3;
+}
+message FetchResponse{
+    string userID = 1;
+    repeated Message messages = 2;
+}
+message Message{
+    string msgID = 1;
+    string type = 2;
+    bytes body = 3;
+    int64 timestamp = 4;
+    string remoteID = 5;
+    string direction = 6;
+}
+
+message ClearRequest{
+    string sessionID = 1;
+    int64 timestamp = 2;
+}
+message ClearResponse{
+    string userID = 1;
+    int64 timestamp = 2;
+}
+
+service Msg{
+
+    rpc Fetch(FetchRequest) returns (FetchResponse);
+
+    rpc Clear(ClearRequest) returns (ClearResponse);
+
+}

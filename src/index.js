@@ -303,6 +303,43 @@ function MainPage() {
 
     }
 
+    function fetchMessage(sid) {
+        let timestamp = 0
+        let result = ipcRenderer.sendSync('fetchMsg', {
+            sessionID: sid,
+            timestamp: timestamp,
+            limit: 20
+        })
+        if (result && result.userID) {
+            if (result.messages && result.messages.length > 0) {
+                let last = result.messages[result.messages.length - 1]
+                timestamp = last.timestamp
+                window.SaveMessages(result.messages)
+                // let transaction = window.DB.transaction(['dialog', 'message'], 'readwrite')
+                // let tx = window.OpenTX(['dialog', 'message'], 'readwrite', e => {
+                //     console.log('fetch message and save indexedDB success')
+                // }, e => {
+                //     console.log('fetch message open transaction failed', tx.error)
+                // }, e => {
+                //     console.log('fetch message transaction abort ', tx.error)
+                // })
+                // let remoteIDs = result.messages.map(message => message.remoteID)
+                // let uniqueRemoteIDs = Array.from(new Set(remoteIDs))
+                // console.log('fetch message open transaction success, start to save to indexDB')
+                // let dialogOS = tx.objectStore('dialog')
+                // uniqueRemoteIDs.forEach(remoteID => {
+                //     dialogOS.put({
+                //         remoteID: remoteID
+                //     }, "remoteID")
+                // })
+                // let messageOS = transaction.objectStore('message')
+                // result.messages.forEach(message => {
+                //     messageOS.put(message, "msgID")
+                // });
+            }
+        }
+    }
+
     function handleLogin(sid) {
         if (sid) {
             let newState = { ...state }
@@ -311,6 +348,8 @@ function MainPage() {
             setState(newState)
             sessionID = sid
         }
+
+        fetchMessage(sid)
         initOnSignal()
     }
 
