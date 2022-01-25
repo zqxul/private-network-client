@@ -112,16 +112,14 @@ export function HostPage({ sessionID }) {
             }, err => {
                 console.log(err)
             }).then(() => {
-
                 document.getElementById('stream1').srcObject = localStream
-
                 let mediaSource = new MediaSource()
+                document.getElementById('stream2').src = URL.createObjectURL(mediaSource)
                 mediaSource.addEventListener('sourceopen', () => {
                     console.log('source opened..')
                     let sourceBuffer = mediaSource.addSourceBuffer(mimeType)
                     liveingRecorder = new MediaRecorder(localStream, { mimeType: mimeType })
                     liveingRecorder.ondataavailable = chunk => {
-
                         chunk.data.arrayBuffer().then(buffer => {
                             // send buffer to server
                             ipcRenderer.send('signal', {
@@ -129,19 +127,11 @@ export function HostPage({ sessionID }) {
                                 localID: sessionID,
                                 stream: new Uint8Array(buffer)
                             })
-                            if (sourceBuffer) {
-                                sourceBuffer.appendBuffer(buffer)
-                            }
+                            sourceBuffer.appendBuffer(buffer)
                         })
-
-                        // chunk.data.arrayBuffer().then(buffer => {
-                        //     console.log('buffer:', new Uint8Array(buffer))
-                        // })
                     }
                     liveingRecorder.start(2000)
                 }, false)
-                document.getElementById('stream2').src = URL.createObjectURL(mediaSource)
-
             })
     }
 

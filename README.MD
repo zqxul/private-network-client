@@ -9,7 +9,7 @@
 
 ## 技术找
     包管理：NPM
-    通信方式：GRPC + NodeJS
+    通信方式：GRPC + WebRTC
     应用搭建：Electron
     界面交互：React
     客户端存储：IndexedDB
