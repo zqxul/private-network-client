@@ -141,12 +141,12 @@ function SetRemoteRead(msgID) {
     }, e => {
         console.log('read message transaction abort ', tx.error)
     })
-    let messageStore = tx.objectStore('message')
-    let getRequest = messageStore.get(msgID)
+    let msgStore = tx.objectStore('message')
+    let getRequest = msgStore.get(msgID)
     getRequest.onsuccess = e => {
         let message = getRequest.result
         message.remoteread = message.remoteID + '::1'
-        let updateRequest = messageStore.put(message)
+        let updateRequest = msgStore.put(message)
         updateRequest.onsuccess = e => {
             console.log('update message remoteread success')
         }

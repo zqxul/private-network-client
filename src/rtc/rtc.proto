@@ -16,7 +16,8 @@ message RTCDescription {
     SessionDescription sdp = 4;
     ICECandidate candidate = 5;
     Message message = 6;
-    bytes stream = 7;
+    Receipt receipt = 7;
+    bytes stream = 8;
 }
 
 message ICECandidate {
@@ -27,8 +28,15 @@ message ICECandidate {
 }
 
 message Message{
-    string type = 1;
-    bytes body = 2;
+    string msgID = 1;
+    string type = 2;
+    bytes body = 3;
+    int64 timestamp = 4;
+}
+
+message Receipt{
+    string receiptID = 1;
+    string msgID = 2;
     int64 timestamp = 3;
 }
 
