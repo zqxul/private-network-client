@@ -301,13 +301,20 @@ function MainPage() {
         // on message
         // remote message
         window.setOnBackgroundMessage(msg => {
-            msg.read = false // use read property for count new message, display in chat logo
+            msg.remoteread = msg.remoteID + '::0'
             window.SaveMessages([msg])
         })
         // local message
         window.setOnBackgroundMessageAck(msg => {
-            msg.read = false // use read property for count new message, display in chat logo
+            msg.remoteread = msg.remoteID + '::0'
             window.SaveMessages([msg])
+        })
+        // update remoteread
+        window.setOnBackgroundReceipt(msg => {
+            window.SetRemoteRead(msg.msgID)
+        })
+        window.setOnBackgroundReceiptAck(msg => {
+            window.SetRemoteRead(msg.msgID)
         })
     }
 
@@ -324,6 +331,24 @@ function MainPage() {
                 timestamp = last.timestamp
                 window.SaveMessages(result.messages)
                 //TODO after save message success, clear the message in server message cache
+            }
+        }
+    }
+
+    function fetchReceipt(sid) {
+        let timestamp = 0
+        let result = ipcRenderer.sendSync('fetchReceipt', {
+            sessionID: sid,
+            timestamp: timestamp,
+            limit: 20
+        })
+        if (result && result.userID) {
+            if (result.receipts && result.receipts.length > 0) {
+                let last = result.receipts[result.receipts.length - 1]
+                timestamp = last.timestamp
+                result.receipts.map(receipt => {
+                    window.SetRemoteRead(receipt.msgID)
+                })
             }
         }
     }

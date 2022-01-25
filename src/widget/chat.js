@@ -137,10 +137,14 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoic
             console.log('read messages: ', result)
             setInit(true)
             setWords(result)
+            let readMsgIDs = result.
+                filter(message => message.remoteread === (message.remoteID + '::0') && message.direction === 'in').
+                map(message => message.msgID)
         })
     }
 
     window.setOnMessage(data => {
+        console.log('receive message: ', data)
         if (remoteID === data.remoteID) {
             const newWords = [...words]
             newWords.push(data)
@@ -150,9 +154,11 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoic
 
     window.setOnMessageAck(data => {
         console.log('receive message ack: ', data)
-        const newWords = [...words]
-        newWords.push(data)
-        setWords(newWords)
+        if (remoteID === data.remoteID) {
+            const newWords = [...words]
+            newWords.push(data)
+            setWords(newWords)
+        }
     })
 
     return sessionID ?
@@ -183,7 +189,7 @@ function Dialogue({ sessionID, remoteID, messages }) {
         <div className='m-1 p-4 border h-5/6 shadow flex flex-col overflow-y-auto overflow-x-clip'>
             {
                 messages.map(message => (
-                    <MessageItem key={message.msgID} message={message} />
+                    <MessageItem key={message.msgID} message={message} sessionID={sessionID} />
                 ))
             }
             {/* <div className='mb-5 odd:text-right'>
@@ -202,12 +208,43 @@ function Dialogue({ sessionID, remoteID, messages }) {
     )
 }
 
-function MessageItem({ message }) {
+function MessageItem({ message, sessionID }) {
+
+    const [state, setState] = useState({
+        read: message.rmoteread === message.remoteID + '::0'
+    })
+
+    // for remote message
+    window.setOnReceipt(data => {
+        if (message.msgID === data.msgID) {
+            console.log('receive receipt: ', data)
+            setState({
+                read: true
+            })
+        }
+    })
+
+    // for local message
+    window.setOnReceiptAck(data => {
+        if (message.msgID === data.msgID) {
+            console.log('receive reciept ack: ', data)
+        }
+    })
+
+    // send read receipt
+    ipcRenderer.send('signal', {
+        type: 'receipt',
+        localID: sessionID,
+        remoteID: message.remoteID,
+        receipt: { msgID: message.msgID }
+    })
+
     let time = new Date(message.timestamp)
     return (
         <div className='mb-5 odd:text-right'>
             <p className='text-gray-300 text-xs'>{time.toDateString()}</p>
             <p className='text-sm'>{message.body}</p>
+            {message.direction === 'out' ? (<span className='text-xs'>{state.read ? '已读' : '未读'}</span>) : null}
         </div>
     )
 }

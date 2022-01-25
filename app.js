@@ -154,6 +154,29 @@ ipcMain.on('clearMsg', (e, ...args) => {
     })
 })
 
+const ReceiptClient = require('./src/receipt/receipt')
+ipcMain.on('fetchReceipt', (e, ...args) => {
+    console.log('fetch receipt request: ', args[0])
+    ReceiptClient.Fetch(args[0], (err, data) => {
+        if (err) {
+            console.log('fetch receipt err: ', err)
+            e.returnValue = { err: err }
+        }
+        console.log('fetch receipt result: ', data)
+        e.returnValue = data
+    })
+})
+ipcMain.on('clearReceipt', (e, ...args) => {
+    console.log('clear receipt request: ', args[0])
+    ReceiptClient.Clear(args[0], (err, data) => {
+        if (err) {
+            console.log('clear receipt err: ', err)
+            e.returnValue = { err: err }
+        }
+        e.returnValue = data
+    })
+})
+
 const UserClient = require('./src/user/user')
 ipcMain.on('findFriend', (e, ...args) => {
     console.log('find friend request:', args[0])

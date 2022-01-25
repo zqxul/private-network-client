@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 })
 
-var [handleLiveStream, handleMessage, handleMessageAck, handleBackgroundMessage, handleBackgroundMessageAck, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
+var [handleLiveStream, handleMessage, handleMessageAck, handleBackgroundMessage, handleBackgroundMessageAck, handleReceipt, handleReceiptAck, handleBackgroundReceipt, handleBackgroundReceiptAck, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
     [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
 contextBridge.exposeInMainWorld("electron", { ipcRenderer: { ...ipcRenderer, on: ipcRenderer.on } });
 
@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld("setOnMessage", handler => handleMessage = handl
 contextBridge.exposeInMainWorld("setOnMessageAck", handler => handleMessageAck = handler)
 contextBridge.exposeInMainWorld("setOnBackgroundMessage", handler => handleBackgroundMessage = handler)
 contextBridge.exposeInMainWorld("setOnBackgroundMessageAck", handler => handleBackgroundMessageAck = handler)
+contextBridge.exposeInMainWorld("setOnReceipt", handler => handleReceipt = handler)
+contextBridge.exposeInMainWorld("setOnReceiptAck", handler => handleReceiptAck = handler)
+contextBridge.exposeInMainWorld("setOnBackgroundReceipt", handler => handleBackgroundReceipt = handler)
+contextBridge.exposeInMainWorld("setOnBackgroundReceiptAck", handler => handleBackgroundReceiptAck = handler)
 contextBridge.exposeInMainWorld("setOnCandidate", handler => handleCandidate = handler)
 contextBridge.exposeInMainWorld("setOnOffer", handler => handleOffer = handler)
 contextBridge.exposeInMainWorld("setOnAnswer", handler => handleAnswer = handler)
@@ -37,6 +41,10 @@ ipcRenderer.on('stream', (e, data) => {
         case 'ack:message': // local message ack
             handleBackgroundMessageAck(data)
             handleMessageAck(data) //
+            break
+        case 'ack:receipt': // local message ack
+            handleBackgroundReceiptAck(data)
+            handleReceiptAck(data) //
             break
         case 'live':
             handleLiveStream(data)
@@ -108,8 +116,9 @@ DBRequest.onupgradeneeded = e => {
     DB.deleteObjectStore('dialog')
     DB.deleteObjectStore('message')
     DB.createObjectStore('dialog', { keyPath: 'remoteID' })
-    DB.createObjectStore('message', { keyPath: 'msgID' }).
-        createIndex("remoteID", 'msgID', { unique: false })
+    let messageStore = DB.createObjectStore('message', { keyPath: 'msgID' })
+    messageStore.createIndex('remoteID', 'msgID', { unique: false })
+    messageStore.createIndex('remoteread', 'msgID', { unique: false })
     DB.onerror = e => {
         console.log(e.target.error)
     }
@@ -123,7 +132,33 @@ function OpenTX(storeNames, mode, oncomplete, onerror, onabort) {
     return tx
 }
 
-
+function SetRemoteRead(msgID) {
+    console.log('read messages from indexDB')
+    let tx = OpenTX(['message'], 'readwrite', e => {
+        console.log('read message in indexedDB success')
+    }, e => {
+        console.log('read message open transaction failed', tx.error)
+    }, e => {
+        console.log('read message transaction abort ', tx.error)
+    })
+    let messageStore = tx.objectStore('message')
+    let getRequest = messageStore.get(msgID)
+    getRequest.onsuccess = e => {
+        let message = getRequest.result
+        message.remoteread = message.remoteID + '::1'
+        let updateRequest = messageStore.put(message)
+        updateRequest.onsuccess = e => {
+            console.log('update message remoteread success')
+        }
+        updateRequest.onerror = e => {
+            console.log('update message remoteread error: ', updateRequest.error)
+        }
+    }
+    getRequest.onerror = e => {
+        console.log('get message error: ', getRequest.error)
+    }
+}
+contextBridge.exposeInMainWorld('SetRemoteRead', SetRemoteRead)
 function ReadMessages(remoteID, onSuccess) {
     console.log('read messages from indexDB')
     let tx = OpenTX(['message'], 'readwrite', e => {
