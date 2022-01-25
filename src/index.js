@@ -299,7 +299,14 @@ function MainPage() {
         })
 
         // on message
+        // remote message
         window.setOnBackgroundMessage(msg => {
+            msg.read = false // use read property for count new message, display in chat logo
+            window.SaveMessages([msg])
+        })
+        // local message
+        window.setOnBackgroundMessageAck(msg => {
+            msg.read = false // use read property for count new message, display in chat logo
             window.SaveMessages([msg])
         })
     }
@@ -316,27 +323,7 @@ function MainPage() {
                 let last = result.messages[result.messages.length - 1]
                 timestamp = last.timestamp
                 window.SaveMessages(result.messages)
-                // let transaction = window.DB.transaction(['dialog', 'message'], 'readwrite')
-                // let tx = window.OpenTX(['dialog', 'message'], 'readwrite', e => {
-                //     console.log('fetch message and save indexedDB success')
-                // }, e => {
-                //     console.log('fetch message open transaction failed', tx.error)
-                // }, e => {
-                //     console.log('fetch message transaction abort ', tx.error)
-                // })
-                // let remoteIDs = result.messages.map(message => message.remoteID)
-                // let uniqueRemoteIDs = Array.from(new Set(remoteIDs))
-                // console.log('fetch message open transaction success, start to save to indexDB')
-                // let dialogOS = tx.objectStore('dialog')
-                // uniqueRemoteIDs.forEach(remoteID => {
-                //     dialogOS.put({
-                //         remoteID: remoteID
-                //     }, "remoteID")
-                // })
-                // let messageOS = transaction.objectStore('message')
-                // result.messages.forEach(message => {
-                //     messageOS.put(message, "msgID")
-                // });
+                //TODO after save message success, clear the message in server message cache
             }
         }
     }

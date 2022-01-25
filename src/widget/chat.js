@@ -149,8 +149,7 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoic
     })
 
     window.setOnMessageAck(data => {
-        console.log('send message ack: ', data)
-        window.DB.createDialogItem(data)
+        console.log('receive message ack: ', data)
         const newWords = [...words]
         newWords.push(data)
         setWords(newWords)

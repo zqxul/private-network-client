@@ -29,9 +29,14 @@ export default function LandingPage({ handleLogout, sessionID, handleVideoCallOu
                     tab: <NetworkPanel sessionID={sessionID} />
                 })
                 break
-            case 'Found':
+            case 'Search':
                 setState({
                     tab: <FoundPage sessionID={sessionID} />
+                })
+                break
+            case 'Found':
+                setState({
+                    tab: <div className='p-2'>found</div>
                 })
                 break
             case 'Post':
@@ -52,6 +57,11 @@ export default function LandingPage({ handleLogout, sessionID, handleVideoCallOu
             case 'Exchange':
                 setState({
                     tab: <div className='p-2'>Exchange</div>
+                })
+                break
+            case 'setting':
+                setState({
+                    tab: <div className='p-2'>Setting</div>
                 })
                 break
             default:

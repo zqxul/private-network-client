@@ -11,9 +11,14 @@ export const navs = [
         icon: 'bi bi-people-fill',
         description: ''
     }, {
-        shortname: 'F',
-        name: 'Found',
+        shortname: 'S',
+        name: 'Search',
         icon: 'bi bi-search',
+        description: ''
+    }, {
+        shortname: 'Found',
+        name: 'Found',
+        icon: 'bi bi-eye-fill',
         description: ''
     }, {
         shortname: 'P',

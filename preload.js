@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 })
 
-var [handleLiveStream, handleMessage, handleMessageAck, handleBackgroundMessage, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
+var [handleLiveStream, handleMessage, handleMessageAck, handleBackgroundMessage, handleBackgroundMessageAck, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
     [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
 contextBridge.exposeInMainWorld("electron", { ipcRenderer: { ...ipcRenderer, on: ipcRenderer.on } });
 
@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld("setOnLiveStream", handler => handleLiveStream =
 contextBridge.exposeInMainWorld("setOnMessage", handler => handleMessage = handler)
 contextBridge.exposeInMainWorld("setOnMessageAck", handler => handleMessageAck = handler)
 contextBridge.exposeInMainWorld("setOnBackgroundMessage", handler => handleBackgroundMessage = handler)
+contextBridge.exposeInMainWorld("setOnBackgroundMessageAck", handler => handleBackgroundMessageAck = handler)
 contextBridge.exposeInMainWorld("setOnCandidate", handler => handleCandidate = handler)
 contextBridge.exposeInMainWorld("setOnOffer", handler => handleOffer = handler)
 contextBridge.exposeInMainWorld("setOnAnswer", handler => handleAnswer = handler)
@@ -33,13 +34,14 @@ ipcRenderer.on('stream', (e, data) => {
     console.log('receive stream')
     console.log(data)
     switch (data.type) {
-        case 'ack:message':
-            handleMessageAck(data)
+        case 'ack:message': // local message ack
+            handleBackgroundMessageAck(data)
+            handleMessageAck(data) //
             break
         case 'live':
             handleLiveStream(data)
             break
-        case 'message':
+        case 'message': // remote message
             handleBackgroundMessage(data) // save to indexedDB
             handleMessage(data) // display in specific dialog
             break
