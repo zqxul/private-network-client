@@ -57,7 +57,7 @@ export function SessionPanel({ sessionID, handleVideoCallOut, handleVoiceCallOut
                 </div>
                 <DialogList currentID={state.currentID} dialogs={dialogs} handleSelect={handleSelect} />
             </div>
-            <SessionBox sessionID={sessionID} remoteID={state.currentID} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} />
+            {state.currentID ? <SessionBox sessionID={sessionID} remoteID={state.currentID} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} /> : null}
         </div>
     )
 }
@@ -129,14 +129,23 @@ function SessionItem({ id, imageUrl, title, overview, current, handleSelect }) {
 
 export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoiceCallOut }) {
 
+    const [init, setInit] = useState(false)
     const [words, setWords] = useState([])
 
-    // load words
+    if (!init) {
+        window.ReadMessages(remoteID, result => {
+            console.log('read messages: ', result)
+            setInit(true)
+            setWords(result)
+        })
+    }
+
     window.setOnMessage(data => {
-        window.DB.createDialogItem(data)
-        const newWords = [...words]
-        newWords.push(data)
-        setWords(newWords)
+        if (remoteID === data.remoteID) {
+            const newWords = [...words]
+            newWords.push(data)
+            setWords(newWords)
+        }
     })
 
     window.setOnMessageAck(data => {
@@ -151,7 +160,7 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoic
         (
             <div className='p-2 w-8/12 flex flex-col'>
                 <ToolBar sessionID={sessionID} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} />
-                <Dialogue sessionID={sessionID} remoteID={remoteID} words={words} />
+                <Dialogue sessionID={sessionID} remoteID={remoteID} messages={words} />
                 <InputBox sessionID={sessionID} remoteID={remoteID} />
             </div>
         ) : (
@@ -169,11 +178,16 @@ function ToolBar({ sessionID, handleVideoCallOut, handleVoiceCallOut }) {
     )
 }
 
-function Dialogue({ sessionID, remoteID, words }) {
+function Dialogue({ sessionID, remoteID, messages }) {
 
     return (
         <div className='m-1 p-4 border h-5/6 shadow flex flex-col overflow-y-auto overflow-x-clip'>
-            <div className='mb-5 odd:text-right'>
+            {
+                messages.map(message => (
+                    <MessageItem key={message.msgID} message={message} />
+                ))
+            }
+            {/* <div className='mb-5 odd:text-right'>
                 <p className='text-gray-300 text-xs'>14:40:31</p>
                 <p className='text-sm'>good morning neighbor</p>
             </div>
@@ -184,8 +198,18 @@ function Dialogue({ sessionID, remoteID, words }) {
             <div className='mb-5 odd:text-right'>
                 <p className='text-gray-300 text-xs'>20:40:11</p>
                 <p className='text-sm'> fuck you too</p>
-            </div>
+            </div> */}
         </div >
+    )
+}
+
+function MessageItem({ message }) {
+    let time = new Date(message.timestamp)
+    return (
+        <div className='mb-5 odd:text-right'>
+            <p className='text-gray-300 text-xs'>{time.toDateString()}</p>
+            <p className='text-sm'>{message.body}</p>
+        </div>
     )
 }
 

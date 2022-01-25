@@ -299,8 +299,9 @@ function MainPage() {
         })
 
         // on message
-        // save to indexedDB and update the number of new msg in nav chat
-
+        window.setOnBackgroundMessage(msg => {
+            window.SaveMessages([msg])
+        })
     }
 
     function fetchMessage(sid) {
