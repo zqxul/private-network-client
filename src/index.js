@@ -307,13 +307,15 @@ function MainPage() {
                 type: data.message.type,
                 body: data.message.body,
                 timestamp: data.message.timestamp,
+                fromID: data.remoteID,
+                toID: data.localID,
                 remoteID: data.remoteID,
+                sourceID: data.remoteID,
                 remoteread: data.remoteID + '::0',
-                direction: 'in'
             }
-            window.SaveMessages([message])
+            window.SaveMessages(data.localID, [message])
         })
-        // local message
+        // local message ack
         window.setOnBackgroundMessageAck(data => {
             console.log('receive background message ack: ', data)
             if (data.remoteID && data.message) {
@@ -322,17 +324,20 @@ function MainPage() {
                     type: data.message.type,
                     body: data.message.body,
                     timestamp: data.message.timestamp,
+                    fromID: data.localID,
+                    toID: data.remoteID,
                     remoteID: data.remoteID,
+                    sourceID: data.localID,
                     remoteread: data.remoteID + '::0',
-                    direction: 'out'
                 }
-                window.SaveMessages([message])
+                window.SaveMessages(data.localID, [message])
             }
         })
         // update remoteread
         window.setOnBackgroundReceipt(data => {
             if (data && data.receipt) {
                 window.SetRemoteRead(data.receipt.msgID)
+                // clear message
             }
         })
         window.setOnBackgroundReceiptAck(data => {
@@ -349,15 +354,17 @@ function MainPage() {
             timestamp: timestamp,
             limit: 20
         })
-        if (result && result.userID) {
+        if (result && result.networkID) {
             if (result.messages && result.messages.length > 0) {
                 let last = result.messages[result.messages.length - 1]
                 timestamp = last.timestamp
                 let storeMsgs = result.messages.map(message => {
-                    message.remoteread = message.remoteID + '::0'
+                    message.remoteID = message.fromID
+                    message.sourceID = message.fromID
+                    message.remoteread = message.fromID + '::0'
                     return message
                 })
-                window.SaveMessages(storeMsgs)
+                window.SaveMessages(result.networkID, storeMsgs)
                 //TODO after save message success, clear the message in server message cache
             }
         }

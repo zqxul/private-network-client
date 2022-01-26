@@ -144,22 +144,26 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoic
         })
     }
 
+    // on remote message
     window.setOnMessage(data => {
-        console.log('receive chat message: ', data.message)
+        console.log('receive chat message: ', data)
         if (remoteID === data.remoteID) {
+            data.message.remoteID = remoteID
             const newWords = [...words]
             newWords.push(data.message)
             setWords(newWords)
         }
     })
 
+    // on local message ack
     window.setOnMessageAck(data => {
-        console.log('receive chat message ack: ', data.message)
+        console.log('receive chat message ack: ', data)
         if (remoteID === data.remoteID) {
             const newWords = [...words]
-            data.message.direction = 'out'
-            data.message.remoteread = data.remoteID + '::0'
-            newWords.push(data.message)
+            let message = data.message
+            message.remoteID = data.remoteID
+            message.remoteread = data.remoteID + '::0'
+            newWords.push(message)
             setWords(newWords)
         }
     })
@@ -192,29 +196,17 @@ function Dialogue({ sessionID, remoteID, messages }) {
         <div className='m-1 p-4 border h-5/6 shadow flex flex-col overflow-y-auto overflow-x-clip'>
             {
                 messages.map(message => (
-                    <MessageItem key={message.msgID} message={message} sessionID={sessionID} />
+                    <MessageItem key={message.msgID} message={message} remoteID={remoteID} sessionID={sessionID} />
                 ))
             }
-            {/* <div className='mb-5 odd:text-right'>
-                <p className='text-gray-300 text-xs'>14:40:31</p>
-                <p className='text-sm'>good morning neighbor</p>
-            </div>
-            <div className='mb-5 odd:text-right'>
-                <p className='text-gray-300 text-xs'>18:19:12</p>
-                <p className='text-sm'>fuck you</p>
-            </div>
-            <div className='mb-5 odd:text-right'>
-                <p className='text-gray-300 text-xs'>20:40:11</p>
-                <p className='text-sm'> fuck you too</p>
-            </div> */}
         </div >
     )
 }
 
-function MessageItem({ message, sessionID }) {
+function MessageItem({ message, remoteID, sessionID }) {
 
     const [state, setState] = useState({
-        read: message.remoteread === message.remoteID + '::1'
+        remoteread: message.remoteread
     })
 
     // for remote message
@@ -222,7 +214,7 @@ function MessageItem({ message, sessionID }) {
         if (message.msgID === data.msgID) {
             console.log('receive receipt: ', data)
             setState({
-                read: true
+                remoteread: message.remoteID + '::1'
             })
         }
     })
@@ -231,12 +223,14 @@ function MessageItem({ message, sessionID }) {
     window.setOnReceiptAck(data => {
         if (message.msgID === data.msgID) {
             console.log('receive reciept ack: ', data)
-            window.SetRemoteRead(data.receipt.msgID)
+            setState({
+                remoteread: message.remoteID + '::1'
+            })
         }
     })
 
     // send read receipt
-    if (message.direction === 'in'
+    if (message.fromID === remoteID
         && message.remoteread === message.remoteID + '::0') {
         ipcRenderer.send('signal', {
             type: 'receipt',
@@ -250,7 +244,7 @@ function MessageItem({ message, sessionID }) {
         <div className='mb-5 odd:text-right'>
             <p className='text-gray-300 text-xs'>{new Date(parseInt(message.timestamp)).toLocaleTimeString('en-US')}</p>
             <p className='text-sm'>{new TextDecoder().decode(message.body)}</p>
-            {message.direction === 'out' ? (<span className='text-xs'>{state.read ? '已读' : '未读'}</span>) : null}
+            {message.sourceID === remoteID ? null : (<span className='text-xs'>{state.remoteread === message.remoteID + '::1' ? '已读' : '未读'}</span>)}
         </div>
     )
 }

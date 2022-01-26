@@ -11,15 +11,16 @@ message FetchRequest{
 }
 message FetchResponse{
     string userID = 1;
-    repeated Message messages = 2;
+    string networkID = 2;
+    repeated Message messages = 3;
 }
 message Message{
     string msgID = 1;
     string type = 2;
     bytes body = 3;
     string timestamp = 4;
-    string remoteID = 5;
-    string direction = 6;
+    string fromID = 5;
+    string toID = 6;
 }
 
 message ClearRequest{

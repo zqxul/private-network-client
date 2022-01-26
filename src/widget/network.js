@@ -45,7 +45,7 @@ export default function NetworkPanel({ sessionID }) {
         console.log('create session')
         let remoteID = e.target.value
         if (remoteID) {
-            window.CreateDialogs(selectedFriend.userID, [remoteID])
+            window.CreateDialogs(selectedFriend.networkID, [remoteID])
         }
     }
 

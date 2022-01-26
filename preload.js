@@ -1,4 +1,3 @@
-const { data } = require('autoprefixer');
 const { ipcRenderer, contextBridge } = require('electron')
 window.addEventListener('DOMContentLoaded', () => {
     // ReactDOM.render('<div>hello</div>', document.getElementById('root'))
@@ -105,7 +104,7 @@ if (!window.indexedDB) {
 }
 
 let DB = null
-let currentVersion = 8
+let currentVersion = 11
 let DBRequest = window.indexedDB.open('hello_word', currentVersion)
 DBRequest.onerror = e => {
     console.log(e.target.error)
@@ -186,7 +185,7 @@ function ReadMessages(remoteID, onSuccess) {
     }
 }
 contextBridge.exposeInMainWorld('ReadMessages', ReadMessages)
-function SaveMessages(messages) {
+function SaveMessages(localID, messages) {
     console.log("Save Messages: ", messages)
     let tx = OpenTX(['dialog', 'message'], 'readwrite', e => {
         console.log('save message in indexedDB success')
@@ -201,6 +200,7 @@ function SaveMessages(messages) {
     let dialogOS = tx.objectStore('dialog')
     uniqueRemoteIDs.forEach(remoteID => {
         dialogOS.put({
+            localID: localID,
             remoteID: remoteID
         })
     })
