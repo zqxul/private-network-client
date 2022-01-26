@@ -210,28 +210,31 @@ function MessageItem({ message, remoteID, sessionID }) {
     })
 
     // for remote message
-    window.setOnReceipt(data => {
-        if (message.msgID === data.msgID) {
-            console.log('receive receipt: ', data)
-            setState({
-                remoteread: message.remoteID + '::1'
-            })
-        }
-    })
-
-    // for local receipt
-    window.setOnReceiptAck(data => {
-        if (message.msgID === data.msgID) {
-            console.log('receive reciept ack: ', data)
-            setState({
-                remoteread: message.remoteID + '::1'
-            })
-        }
-    })
+    if (message.sourceID !== remoteID
+        && message.remoteread === message.remoteID + '::0') {
+        window.setOnReceipt(data => {
+            if (message.msgID === data.msgID) {
+                console.log('receive receipt: ', data)
+                setState({
+                    remoteread: message.remoteID + '::1'
+                })
+            }
+        })
+    }
 
     // send read receipt
-    if (message.fromID === remoteID
+    if (message.sourceID === remoteID
         && message.remoteread === message.remoteID + '::0') {
+        // for local receipt
+        window.setOnReceiptAck(data => {
+            if (message.msgID === data.msgID) {
+                console.log('receive reciept ack: ', data)
+                setState({
+                    remoteread: message.remoteID + '::1'
+                })
+            }
+        })
+
         ipcRenderer.send('signal', {
             type: 'receipt',
             localID: sessionID,

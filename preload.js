@@ -12,8 +12,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
 })
 
-var [handleLiveStream, handleMessage, handleMessageAck, handleBackgroundMessage, handleBackgroundMessageAck, handleReceipt, handleReceiptAck, handleBackgroundReceipt, handleBackgroundReceiptAck, handleCandidate, handleCandidateAck, handleOffer, handleOfferAck, handleAnswer, handleAnswerAck, handleEnd, handleEndAck] =
-    [data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }, data => { }]
+var [
+    handleLiveStream,
+    handleMessage, handleMessageAck,
+    handleBackgroundMessage, handleBackgroundMessageAck,
+    handleReceipt, handleReceiptAck,
+    handleBackgroundReceipt, handleBackgroundReceiptAck,
+    handleCandidate, handleCandidateAck,
+    handleOffer, handleOfferAck,
+    handleAnswer, handleAnswerAck,
+    handleEnd, handleEndAck
+] = [
+        data => { }, data => { }, data => { },
+        data => { }, data => { },
+        data => { }, data => { },
+        [], [],
+        data => { }, data => { },
+        data => { }, data => { },
+        data => { }, data => { },
+        data => { }, data => { }
+    ]
 contextBridge.exposeInMainWorld("electron", { ipcRenderer: { ...ipcRenderer, on: ipcRenderer.on } });
 
 contextBridge.exposeInMainWorld("setOnLiveStream", handler => handleLiveStream = handler)
@@ -21,8 +39,8 @@ contextBridge.exposeInMainWorld("setOnMessage", handler => handleMessage = handl
 contextBridge.exposeInMainWorld("setOnMessageAck", handler => handleMessageAck = handler)
 contextBridge.exposeInMainWorld("setOnBackgroundMessage", handler => handleBackgroundMessage = handler)
 contextBridge.exposeInMainWorld("setOnBackgroundMessageAck", handler => handleBackgroundMessageAck = handler)
-contextBridge.exposeInMainWorld("setOnReceipt", handler => handleReceipt = handler)
-contextBridge.exposeInMainWorld("setOnReceiptAck", handler => handleReceiptAck = handler)
+contextBridge.exposeInMainWorld("setOnReceipt", (msgID, handler) => handleReceipt[msgID] = handler)
+contextBridge.exposeInMainWorld("setOnReceiptAck", (msgID, handler) => handleReceiptAck[msgID] = handler)
 contextBridge.exposeInMainWorld("setOnBackgroundReceipt", handler => handleBackgroundReceipt = handler)
 contextBridge.exposeInMainWorld("setOnBackgroundReceiptAck", handler => handleBackgroundReceiptAck = handler)
 contextBridge.exposeInMainWorld("setOnCandidate", handler => handleCandidate = handler)
@@ -43,14 +61,22 @@ ipcRenderer.on('stream', (e, data) => {
             break
         case 'ack:receipt': // local message ack
             handleBackgroundReceiptAck(data)
-            handleReceiptAck(data) //
+            for let msgID in handleReceiptAck{
+                let handler = handleReceiptAck[msgID]
+                handler(data)
+            }
+            // handleReceiptAck(data)
             break
         case 'live':
             handleLiveStream(data)
             break
         case 'receipt':
             handleBackgroundReceipt(data)
-            handleReceipt(data)
+            for let msgID in handleReceipt{
+                let handler = handleReceipt[msgID]
+                handler(data)
+            }
+            // handleReceipt(data)
             break
         case 'message': // remote message
             handleBackgroundMessage(data) // save to indexedDB
