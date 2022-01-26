@@ -31,13 +31,13 @@ message Message{
     string msgID = 1;
     string type = 2;
     bytes body = 3;
-    int64 timestamp = 4;
+    string timestamp = 4;
 }
 
 message Receipt{
     string receiptID = 1;
     string msgID = 2;
-    int64 timestamp = 3;
+    string timestamp = 3;
 }
 
 service RTC {

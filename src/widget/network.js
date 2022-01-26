@@ -43,12 +43,10 @@ export default function NetworkPanel({ sessionID }) {
     function handleNewSession(e) {
         e.preventDefault()
         console.log('create session')
-        // window.DB.createDialog({
-        //     id: selectedFriend.networkID,
-        //     title: selectedFriend.nickname,
-        //     imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        //     overview: 'about what'
-        // })
+        let remoteID = e.target.value
+        if (remoteID) {
+            window.CreateDialogs(selectedFriend.userID, [remoteID])
+        }
     }
 
     return (
@@ -71,7 +69,7 @@ export default function NetworkPanel({ sessionID }) {
                         <div>相册</div>
                         <div>说说</div>
                         <div className='flex flex-rows space-x-3 text-xs font-thin'>
-                            <button className='border bg-sky-400 p-2' onClick={handleNewSession}>新建会话</button>
+                            <button className='border bg-sky-400 p-2' value={selectedFriend.networkID} onClick={handleNewSession}>新建会话</button>
                         </div>
                     </div> : null
             }

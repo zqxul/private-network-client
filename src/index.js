@@ -300,21 +300,45 @@ function MainPage() {
 
         // on message
         // remote message
-        window.setOnBackgroundMessage(msg => {
-            msg.remoteread = msg.remoteID + '::0'
-            window.SaveMessages([msg])
+        window.setOnBackgroundMessage(data => {
+            console.log('receive background message: ', data)
+            let message = {
+                msgID: data.message.msgID,
+                type: data.message.type,
+                body: data.message.body,
+                timestamp: data.message.timestamp,
+                remoteID: data.remoteID,
+                remoteread: data.remoteID + '::0',
+                direction: 'in'
+            }
+            window.SaveMessages([message])
         })
         // local message
-        window.setOnBackgroundMessageAck(msg => {
-            msg.remoteread = msg.remoteID + '::0'
-            window.SaveMessages([msg])
+        window.setOnBackgroundMessageAck(data => {
+            console.log('receive background message ack: ', data)
+            if (data.remoteID && data.message) {
+                let message = {
+                    msgID: data.message.msgID,
+                    type: data.message.type,
+                    body: data.message.body,
+                    timestamp: data.message.timestamp,
+                    remoteID: data.remoteID,
+                    remoteread: data.remoteID + '::0',
+                    direction: 'out'
+                }
+                window.SaveMessages([message])
+            }
         })
         // update remoteread
-        window.setOnBackgroundReceipt(msg => {
-            window.SetRemoteRead(msg.msgID)
+        window.setOnBackgroundReceipt(data => {
+            if (data && data.receipt) {
+                window.SetRemoteRead(data.receipt.msgID)
+            }
         })
-        window.setOnBackgroundReceiptAck(msg => {
-            window.SetRemoteRead(msg.msgID)
+        window.setOnBackgroundReceiptAck(data => {
+            if (data && data.receipt) {
+                window.SetRemoteRead(data.receipt.msgID)
+            }
         })
     }
 
@@ -329,7 +353,11 @@ function MainPage() {
             if (result.messages && result.messages.length > 0) {
                 let last = result.messages[result.messages.length - 1]
                 timestamp = last.timestamp
-                window.SaveMessages(result.messages)
+                let storeMsgs = result.messages.map(message => {
+                    message.remoteread = message.remoteID + '::0'
+                    return message
+                })
+                window.SaveMessages(storeMsgs)
                 //TODO after save message success, clear the message in server message cache
             }
         }
@@ -363,6 +391,7 @@ function MainPage() {
         }
 
         fetchMessage(sid)
+        fetchReceipt(sid)
         initOnSignal()
     }
 

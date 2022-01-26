@@ -49,6 +49,10 @@ ipcRenderer.on('stream', (e, data) => {
         case 'live':
             handleLiveStream(data)
             break
+        case 'receipt':
+            handleBackgroundReceipt(data)
+            handleReceipt(data)
+            break
         case 'message': // remote message
             handleBackgroundMessage(data) // save to indexedDB
             handleMessage(data) // display in specific dialog
@@ -101,7 +105,8 @@ if (!window.indexedDB) {
 }
 
 let DB = null
-let DBRequest = window.indexedDB.open('hello_word', 3)
+let currentVersion = 8
+let DBRequest = window.indexedDB.open('hello_word', currentVersion)
 DBRequest.onerror = e => {
     console.log(e.target.error)
 }
@@ -113,9 +118,12 @@ DBRequest.onupgradeneeded = e => {
     DB = e.target.result
     console.log(DB.name, ' db need upgrade, current version: ', DB.version)
 
-    DB.deleteObjectStore('dialog')
-    DB.deleteObjectStore('message')
-    DB.createObjectStore('dialog', { keyPath: 'remoteID' })
+    if (e.oldVersion < currentVersion) {
+        DB.deleteObjectStore('dialog')
+        DB.deleteObjectStore('message')
+    }
+    let dialogStore = DB.createObjectStore('dialog', { keyPath: 'remoteID' })
+    dialogStore.createIndex('localID', 'remoteID', { unique: false })
     let messageStore = DB.createObjectStore('message', { keyPath: 'msgID' })
     messageStore.createIndex('remoteID', 'msgID', { unique: false })
     messageStore.createIndex('remoteread', 'msgID', { unique: false })
@@ -133,25 +141,28 @@ function OpenTX(storeNames, mode, oncomplete, onerror, onabort) {
 }
 
 function SetRemoteRead(msgID) {
-    console.log('read messages from indexDB')
+    console.log('Set remoteread from indexDB, msgID: ', msgID)
     let tx = OpenTX(['message'], 'readwrite', e => {
-        console.log('read message in indexedDB success')
+        console.log('Set remoteread from indexedDB success')
     }, e => {
-        console.log('read message open transaction failed', tx.error)
+        console.log('Set remoteread open transaction failed', tx.error)
     }, e => {
-        console.log('read message transaction abort ', tx.error)
+        console.log('Set remoteread transaction abort ', tx.error)
     })
     let msgStore = tx.objectStore('message')
     let getRequest = msgStore.get(msgID)
     getRequest.onsuccess = e => {
         let message = getRequest.result
-        message.remoteread = message.remoteID + '::1'
-        let updateRequest = msgStore.put(message)
-        updateRequest.onsuccess = e => {
-            console.log('update message remoteread success')
-        }
-        updateRequest.onerror = e => {
-            console.log('update message remoteread error: ', updateRequest.error)
+        console.log('get message result: ', message)
+        if (message) {
+            message.remoteread = message.remoteID + '::1'
+            let updateRequest = msgStore.put(message)
+            updateRequest.onsuccess = e => {
+                console.log('update message remoteread success')
+            }
+            updateRequest.onerror = e => {
+                console.log('update message remoteread error: ', updateRequest.error)
+            }
         }
     }
     getRequest.onerror = e => {
@@ -176,6 +187,7 @@ function ReadMessages(remoteID, onSuccess) {
 }
 contextBridge.exposeInMainWorld('ReadMessages', ReadMessages)
 function SaveMessages(messages) {
+    console.log("Save Messages: ", messages)
     let tx = OpenTX(['dialog', 'message'], 'readwrite', e => {
         console.log('save message in indexedDB success')
     }, e => {
@@ -199,19 +211,42 @@ function SaveMessages(messages) {
 }
 contextBridge.exposeInMainWorld('SaveMessages', SaveMessages)
 
+function CreateDialogs(localID, remoteIDs) {
+    if (remoteIDs) {
+        let tx = OpenTX(['dialog', 'message'], 'readwrite', e => {
+            console.log('create dialogs open transaction success')
+        }, e => {
+            console.log('create dialogs open transaction failed', tx.error)
+        }, e => {
+            console.log('create dialogs transaction abort ', tx.error)
+        })
+        let dialogStore = tx.objectStore('dialog')
+        remoteIDs.forEach(remoteID => {
+            dialogStore.put({
+                localID: localID,
+                remoteID: remoteID
+            })
+        })
+    }
+}
 function ReadDialogs(onSuccess) {
+    console.log('start read dialogs')
     let tx = OpenTX(['dialog', 'message'], 'readwrite', e => {
-        console.log('read dialogs success')
+        console.log('read dialogs open transaction success')
     }, e => {
         console.log('read dialogs open transaction failed', tx.error)
     }, e => {
         console.log('read dialogs transaction abort ', tx.error)
     })
-    let request = tx.objectStore('dialog').getAll()
+    console.log('get object store')
+    let index = tx.objectStore('dialog').index('localID')
+    let request = index.getAll()
+    console.log('prepare onsuccess')
     request.onsuccess = function (e) {
         console.log('read dialogs result: ', request.result)
         onSuccess(request.result)
         return
     }
 }
+contextBridge.exposeInMainWorld('CreateDialogs', CreateDialogs)
 contextBridge.exposeInMainWorld('ReadDialogs', ReadDialogs)

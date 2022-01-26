@@ -18,6 +18,7 @@ export function SessionPanel({ sessionID, handleVideoCallOut, handleVoiceCallOut
     const [dialogs, setDialogs] = useState([])
 
     if (!load) {
+        console.log('load dialogs')
         window.ReadDialogs(result => {
             let remoteIDs = result.map(item => item.remoteID)
             let briefInfoResult = ipcRenderer.sendSync('BriefInfos', { sessionID: sessionID, networkIDs: remoteIDs })
@@ -115,7 +116,7 @@ function SessionItem({ id, imageUrl, title, overview, current, handleSelect }) {
         'p-4 h-20 flex flex-row shadow border rounded-lg text-sm '
 
     return (
-        <div className='w-full flex flex-row' onClick={handleClick} onMouseDown={handleMouseDown}>
+        <div className='w-full flex flex-row' onClick={handleClick}>
             <div className={showStyle} style={{ width: menu.leftWidth, minWidth: '70%' }}>
                 <Avartar imageUrl={imageUrl} />
                 <Overview title={title} overview={overview} />
@@ -136,27 +137,29 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoic
         window.ReadMessages(remoteID, result => {
             console.log('read messages: ', result)
             setInit(true)
+            result.sort((left, right) => {
+                return parseInt(left.timestamp) - parseInt(right.timestamp)
+            })
             setWords(result)
-            let readMsgIDs = result.
-                filter(message => message.remoteread === (message.remoteID + '::0') && message.direction === 'in').
-                map(message => message.msgID)
         })
     }
 
     window.setOnMessage(data => {
-        console.log('receive message: ', data)
+        console.log('receive chat message: ', data.message)
         if (remoteID === data.remoteID) {
             const newWords = [...words]
-            newWords.push(data)
+            newWords.push(data.message)
             setWords(newWords)
         }
     })
 
     window.setOnMessageAck(data => {
-        console.log('receive message ack: ', data)
+        console.log('receive chat message ack: ', data.message)
         if (remoteID === data.remoteID) {
             const newWords = [...words]
-            newWords.push(data)
+            data.message.direction = 'out'
+            data.message.remoteread = data.remoteID + '::0'
+            newWords.push(data.message)
             setWords(newWords)
         }
     })
@@ -211,7 +214,7 @@ function Dialogue({ sessionID, remoteID, messages }) {
 function MessageItem({ message, sessionID }) {
 
     const [state, setState] = useState({
-        read: message.rmoteread === message.remoteID + '::0'
+        read: message.remoteread === message.remoteID + '::1'
     })
 
     // for remote message
@@ -224,26 +227,29 @@ function MessageItem({ message, sessionID }) {
         }
     })
 
-    // for local message
+    // for local receipt
     window.setOnReceiptAck(data => {
         if (message.msgID === data.msgID) {
             console.log('receive reciept ack: ', data)
+            window.SetRemoteRead(data.receipt.msgID)
         }
     })
 
     // send read receipt
-    ipcRenderer.send('signal', {
-        type: 'receipt',
-        localID: sessionID,
-        remoteID: message.remoteID,
-        receipt: { msgID: message.msgID }
-    })
+    if (message.direction === 'in'
+        && message.remoteread === message.remoteID + '::0') {
+        ipcRenderer.send('signal', {
+            type: 'receipt',
+            localID: sessionID,
+            remoteID: message.remoteID,
+            receipt: { msgID: message.msgID }
+        })
+    }
 
-    let time = new Date(message.timestamp)
     return (
         <div className='mb-5 odd:text-right'>
-            <p className='text-gray-300 text-xs'>{time.toDateString()}</p>
-            <p className='text-sm'>{message.body}</p>
+            <p className='text-gray-300 text-xs'>{new Date(parseInt(message.timestamp)).toLocaleTimeString('en-US')}</p>
+            <p className='text-sm'>{new TextDecoder().decode(message.body)}</p>
             {message.direction === 'out' ? (<span className='text-xs'>{state.read ? '已读' : '未读'}</span>) : null}
         </div>
     )
