@@ -115,7 +115,7 @@ function LoginForm({ initCaptcha, onSuccess }) {
         console.log('login result is ', result)
         let success = result && result.sessionID
         if (success) {
-            onSuccess(result.sessionID)
+            onSuccess(result)
         }
     }
 

@@ -50,6 +50,7 @@ ipcMain.on('login', (e, ...args) => {
             e.returnValue = { err: err }
             return
         }
+        console.log('login response: ', data)
         signal(e, data.sessionID)
         e.returnValue = data
     })

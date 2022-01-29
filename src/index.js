@@ -19,6 +19,7 @@ function MainPage() {
 
     const [state, setState] = useState({
         sessionID: '',
+        localID: '',
         timeout: 10
     });
 
@@ -388,17 +389,18 @@ function MainPage() {
         }
     }
 
-    function handleLogin(sid) {
-        if (sid) {
+    function handleLogin(result) {
+        if (result) {
             let newState = { ...state }
-            newState.sessionID = sid
+            newState.sessionID = result.sessionID
+            newState.localID = result.networkID
             newState.timeout = 30 * 60 * 1000
             setState(newState)
-            sessionID = sid
+            sessionID = result.sessionID
         }
 
-        fetchMessage(sid)
-        fetchReceipt(sid)
+        fetchMessage(result.sessionID)
+        fetchReceipt(result.sessionID)
         initOnSignal()
     }
 
@@ -438,7 +440,7 @@ function MainPage() {
     return (
         state.sessionID && state.timeout > 0 ?
             <div className='static'>
-                <LandingPage handleLogout={handleLogout} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} sessionID={state.sessionID} onSelected={handleSelected} />
+                <LandingPage handleLogout={handleLogout} handleVideoCallOut={handleVideoCallOut} handleVoiceCallOut={handleVoiceCallOut} sessionID={state.sessionID} localID={state.localID} onSelected={handleSelected} />
                 {
                     ringing ? (
                         <CallPopup sessionID={state.sessionID} direction={direction} onReject={handleReject} onAnswer={handleAnswer} onHangup={handleHangup} remoteID={remoteID} />

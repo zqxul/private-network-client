@@ -1,2 +1,4 @@
-const HOST = '192.168.199.197:3009'
-module.exports = HOST
+// const HOST = '192.168.31.252:3009'
+// module.exports = HOST
+
+exports.HOST = '192.168.31.252:3009'

@@ -23,7 +23,8 @@ var [
     handleAnswer, handleAnswerAck,
     handleEnd, handleEndAck
 ] = [
-        data => { }, data => { }, data => { },
+        data => { },
+        data => { }, data => { },
         data => { }, data => { },
         data => { }, data => { },
         [], [],
@@ -61,7 +62,7 @@ ipcRenderer.on('stream', (e, data) => {
             break
         case 'ack:receipt': // local message ack
             handleBackgroundReceiptAck(data)
-            for let msgID in handleReceiptAck{
+            for (let msgID in handleReceiptAck) {
                 let handler = handleReceiptAck[msgID]
                 handler(data)
             }
@@ -72,7 +73,7 @@ ipcRenderer.on('stream', (e, data) => {
             break
         case 'receipt':
             handleBackgroundReceipt(data)
-            for let msgID in handleReceipt{
+            for (let msgID in handleReceipt) {
                 let handler = handleReceipt[msgID]
                 handler(data)
             }
@@ -255,9 +256,9 @@ function CreateDialogs(localID, remoteIDs) {
         })
     }
 }
-function ReadDialogs(onSuccess) {
+function ReadDialogs(localID, onSuccess) {
     console.log('start read dialogs')
-    let tx = OpenTX(['dialog', 'message'], 'readwrite', e => {
+    let tx = OpenTX(['dialog'], 'readwrite', e => {
         console.log('read dialogs open transaction success')
     }, e => {
         console.log('read dialogs open transaction failed', tx.error)
@@ -266,7 +267,7 @@ function ReadDialogs(onSuccess) {
     })
     console.log('get object store')
     let index = tx.objectStore('dialog').index('localID')
-    let request = index.getAll()
+    let request = index.getAll(localID)
     console.log('prepare onsuccess')
     request.onsuccess = function (e) {
         console.log('read dialogs result: ', request.result)

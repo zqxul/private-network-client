@@ -11,7 +11,8 @@ message LoginRequest{
     string captcha = 4;
 }
 message LoginResponse{
-    string sessionID = 2;
+    string sessionID = 1;
+    string networkID = 2;
 }
 
 message LogoutRequest{
