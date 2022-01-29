@@ -317,7 +317,7 @@ function InputBox({ sessionID, remoteID }) {
             type: 'text',
             body: ''
         })
-        document.getElementById('input').value = body
+        document.getElementById('input').value = ''
     }
 
     return (

@@ -131,7 +131,7 @@ if (!window.indexedDB) {
 }
 
 let DB = null
-let currentVersion = 11
+let currentVersion = 13
 let DBRequest = window.indexedDB.open('hello_word', currentVersion)
 DBRequest.onerror = e => {
     console.log(e.target.error)
@@ -149,7 +149,7 @@ DBRequest.onupgradeneeded = e => {
         DB.deleteObjectStore('message')
     }
     let dialogStore = DB.createObjectStore('dialog', { keyPath: 'remoteID' })
-    dialogStore.createIndex('localID', 'remoteID', { unique: false })
+    dialogStore.createIndex('localID', 'localID', { unique: false })
     let messageStore = DB.createObjectStore('message', { keyPath: 'msgID' })
     messageStore.createIndex('remoteID', 'msgID', { unique: false })
     messageStore.createIndex('remoteread', 'msgID', { unique: false })
@@ -267,7 +267,8 @@ function ReadDialogs(localID, onSuccess) {
     })
     console.log('get object store')
     let index = tx.objectStore('dialog').index('localID')
-    let request = index.getAll(localID)
+    console.log('get all --- ', localID)
+    let request = index.getAll(IDBKeyRange.only(localID))
     console.log('prepare onsuccess')
     request.onsuccess = function (e) {
         console.log('read dialogs result: ', request.result)
