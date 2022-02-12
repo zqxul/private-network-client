@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import '../index.css'
+import { encode, decode } from '@msgpack/msgpack'
+// import { Client } from 'quic'
 
 const electron = window.electron
 
@@ -127,10 +129,15 @@ export function HostPage({ sessionID }) {
                                 localID: sessionID,
                                 stream: new Uint8Array(buffer)
                             })
+                            ipcRenderer.send('livestream', {
+                                st: 'live',
+                                localID: sessionID,
+                                stream: new Uint8Array(buffer)
+                            })
                             sourceBuffer.appendBuffer(buffer)
                         })
                     }
-                    liveingRecorder.start(2000)
+                    liveingRecorder.start(20)
                 }, false)
             })
     }

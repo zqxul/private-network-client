@@ -331,12 +331,12 @@ function InputBox({ sessionID, remoteID }) {
                     <li className='m-1 border text-sm'><i id='input-webcam' className="bi bi-webcam"></i></li>
                     <li className='m-1 border text-sm'><i id='input-mic' className="bi bi-mic"></i></li>
                 </ul>
-            </div >
+            </div>
             <div className='pt-2 pl-1 h-3/4 flex flex-row'>
                 <input id='input' className='h-full w-full' placeholder='input text' onChange={handleChange} />
                 <button className='w-2/12 text-3xl' onClick={handleSendMessage}><i className='bi bi-send-fill'></i></button>
             </div>
-        </div >
+        </div>
     )
 }
 
