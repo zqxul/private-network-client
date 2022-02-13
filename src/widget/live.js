@@ -129,11 +129,11 @@ export function HostPage({ sessionID }) {
                                 localID: sessionID,
                                 stream: new Uint8Array(buffer)
                             })
-                            ipcRenderer.send('livestream', {
-                                st: 'live',
-                                localID: sessionID,
-                                stream: new Uint8Array(buffer)
-                            })
+                            // ipcRenderer.send('livestream', {
+                            //     st: 'live',
+                            //     localID: sessionID,
+                            //     stream: new Uint8Array(buffer)
+                            // })
                             sourceBuffer.appendBuffer(buffer)
                         })
                     }

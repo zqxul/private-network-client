@@ -303,15 +303,3 @@ ipcMain.on('review', (e, ...args) => {
         e.returnValue = data
     })
 })
-
-// quic event
-const Client = require('quic').Client
-let client = new Client()
-client.connect({
-    port: 3010,
-    address: 'localhost'
-}).then(s => {
-    ipcMain.on('livestream', (e, ...args) => {
-        console.log("livestream data: ", args[0])
-    })
-})

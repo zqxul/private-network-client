@@ -41,7 +41,8 @@
     "twemoji": "^13.1.0",
     "webpack": "^5.64.4",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.6.0"
+    "webpack-dev-server": "^4.6.0",
+    "xrpl": "^2.1.1"
   },
   "dependencies": {
     "bootstrap-icons": "^1.7.2",
