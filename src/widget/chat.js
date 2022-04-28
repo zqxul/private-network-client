@@ -225,7 +225,7 @@ function MessageItem({ message, remoteID, sessionID }) {
     if (message.sourceID === remoteID
         && message.remoteread === message.remoteID + '::0') {
         // for local receipt
-        window.setOnReceiptAck(data => {
+        window.setOnReceiptAck(data.msgID, data => {
             if (message.msgID === data.msgID) {
                 console.log('receive reciept ack: ', data)
                 setState({

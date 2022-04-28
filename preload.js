@@ -142,9 +142,10 @@ DBRequest.onsuccess = e => {
 }
 DBRequest.onupgradeneeded = e => {
     DB = e.target.result
+    console.log(DB.name, 'old version: ', e.oldVersion)
     console.log(DB.name, ' db need upgrade, current version: ', DB.version)
 
-    if (e.oldVersion < currentVersion) {
+    if (e.oldVersion !== 0 && e.oldVersion < currentVersion) {
         DB.deleteObjectStore('dialog')
         DB.deleteObjectStore('message')
     }
