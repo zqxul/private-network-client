@@ -27,7 +27,7 @@
     "@msgpack/msgpack": "^2.7.2",
     "autoprefixer": "^10.4.0",
     "babel-loader": "^8.2.3",
-    "css-loader": "^6.5.1",
+    "css-loader": "^6.7.1",
     "electron": "^16.0.2",
     "electron-rebuild": "^3.2.5",
     "npm": "^8.4.0",
@@ -45,7 +45,7 @@
     "xrpl": "^2.1.1"
   },
   "dependencies": {
-    "bootstrap-icons": "^1.7.2",
+    "bootstrap-icons": "^1.8.1",
     "electron-squirrel-startup": "^1.0.0"
   },
   "config": {

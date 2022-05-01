@@ -1,7 +1,6 @@
 import 'tailwindcss/tailwind.css'
 import React, { useState, useEffect } from 'react'
 import Avartar from './avartar'
-import { result } from 'lodash'
 import { EmojiButton } from '@joeattardi/emoji-button'
 const electron = window.electron
 
@@ -132,16 +131,25 @@ export function SessionBox({ sessionID, remoteID, handleVideoCallOut, handleVoic
     const [init, setInit] = useState(false)
     const [words, setWords] = useState([])
 
-    if (!init) {
+    // if (!init) {
+    //     window.ReadMessages(remoteID, result => {
+    //         console.log('read messages: ', result)
+    //         setInit(true)
+    //         result.sort((left, right) => {
+    //             return parseInt(left.timestamp) - parseInt(right.timestamp)
+    //         })
+    //         setWords(result)
+    //     })
+    // }
+    useEffect(()=>{
         window.ReadMessages(remoteID, result => {
             console.log('read messages: ', result)
-            setInit(true)
             result.sort((left, right) => {
                 return parseInt(left.timestamp) - parseInt(right.timestamp)
             })
             setWords(result)
         })
-    }
+    },[])
 
     // on remote message
     window.setOnMessage(data => {
@@ -225,7 +233,7 @@ function MessageItem({ message, remoteID, sessionID }) {
     if (message.sourceID === remoteID
         && message.remoteread === message.remoteID + '::0') {
         // for local receipt
-        window.setOnReceiptAck(data.msgID, data => {
+        window.setOnReceiptAck(message.msgID, data => {
             if (message.msgID === data.msgID) {
                 console.log('receive reciept ack: ', data)
                 setState({

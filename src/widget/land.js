@@ -6,6 +6,8 @@ import NetworkPanel from './network'
 import NavBar from './nav'
 import CallPopup from './popup'
 import { LivePage } from './live'
+import Post from './post'
+import PostPage from './post'
 
 const electron = window.electron
 
@@ -41,7 +43,7 @@ export default function LandingPage({ handleLogout, sessionID, localID, handleVi
                 break
             case 'Post':
                 setState({
-                    tab: <div className='p-2'>post</div>
+                    tab: <PostPage sessionID={sessionID}/>
                 })
                 break
             case 'Live':
