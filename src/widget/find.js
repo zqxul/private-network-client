@@ -5,7 +5,7 @@ const electron = window.electron
 
 const ipcRenderer = electron.ipcRenderer
 
-export default function FoundPage({ sessionID }) {
+export default function FindPage({ sessionID }) {
 
     const [selected, setSelected] = useState('FindFriend')
 
