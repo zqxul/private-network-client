@@ -6,8 +6,9 @@ let client = new Client()
 client.on('error', err => {
     console.log('connect err:', err)
 })
-client.connect(3010, '192.168.199.197')
-    .then(() => {
+client.connect(3010)
+    .then(async () => {
+        await client.ping()
         const stream = client.request()
 
         let status = stream.write(encode({
