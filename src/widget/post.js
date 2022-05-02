@@ -32,17 +32,17 @@ export default function PostEditor({ }) {
     }
 
     return (
-        <div className='editor'>
+        <div className='p-2'>
             <Editor
                 editorState={editorState}
                 onEditorStateChange={handleEditorStateChange}
                 placeholder="Write something!"
                 toolbar={{
-                    inline: { inDropdown: true },
-                    list: { inDropdown: true },
-                    textAlign: { inDropdown: true },
-                    link: { inDropdown: true },
-                    history: { inDropdown: true },
+                //     inline: { inDropdown: true },
+                //     list: { inDropdown: true },
+                //     textAlign: { inDropdown: true },
+                //     link: { inDropdown: true },
+                //     history: { inDropdown: true },
                     image: { uploadCallback: uploadImageCallBack, alt: { present: true, mandatory: true } },
                 }}
             />
