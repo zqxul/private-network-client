@@ -7,7 +7,7 @@ import NavBar from './nav'
 import CallPopup from './popup'
 import { LivePage } from './live'
 import ExplorePage from './explore'
-import PostEditor from './post'
+import PostPage from './post'
 
 const electron = window.electron
 
@@ -29,10 +29,10 @@ export default function LandingPage({ handleLogout, sessionID, localID, handleVi
                 setTab(<FindPage sessionID={sessionID} />)
                 break
             case 'Found':
-                setTab(<ExplorePage sessionID={sessionID}/>)
+                setTab(<ExplorePage sessionID={sessionID} />)
                 break
             case 'Post':
-                setTab(<PostEditor/>)
+                setTab(<PostPage />)
                 break
             case 'Live':
                 setTab(<LivePage sessionID={sessionID} />)

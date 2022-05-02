@@ -4,7 +4,7 @@ import { EditorState, RichUtils } from 'draft-js';
 import { Editor } from "react-draft-wysiwyg"
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
-export default function PostEditor({ }) {
+export default function PostPage({ }) {
     const [editorState, setEditorState] = React.useState(EditorState.createEmpty())
     const handleEditorStateChange = editorState => {
         setEditorState(editorState)
