@@ -2,16 +2,20 @@ import '../index.css'
 import '../icon.css'
 import { EmojiButton } from '@joeattardi/emoji-button'
 import React, { useState } from 'react'
+import Datetime from 'react-datetime';
+import "react-datetime/css/react-datetime.css";
 
 
 export default function ExplorePage({ sessionID }) {
 
-    const [toggleVote, setToggleVote] = useState(true)
+    const [toggleVote, setToggleVote] = useState(false)
+
+    const [toggleCalendar, setToggleCalendar] = useState(true)
 
     const [state, setState] = useState({
         body: '',
         attachments: null,
-        publishAt: null,
+        publishAt: new Date(),
         to: null
     })
     const picker = new EmojiButton()
@@ -60,6 +64,19 @@ export default function ExplorePage({ sessionID }) {
         setToggleVote(false)
     }
 
+    const handleToggleCalendar = e => {
+        let calendar = toggleCalendar
+        setToggleCalendar(!calendar)
+    }
+
+    const handleSelectDate = date =>{
+        console.log(date)
+        setState({
+            ...state,
+            publishAt: date
+        })
+    }
+
     return (
 
         <div className='flex divide-x w-11/12'> {
@@ -73,12 +90,12 @@ export default function ExplorePage({ sessionID }) {
                         <textarea value={state.body} className="'w-full h-5/6 mx-1 px-1" onChange={handleChange} placeholder='有什么新鲜事' />
                         <ul className="h-1/6 text-xs px-3 flex space-x-2">
                             <li>
-                                <i aa='aa' id='image-attachment' className='bi bi-images' onClick={handleUploadFile}>
+                                <i id='image-attachment' className='bi bi-images' onClick={handleUploadFile}>
                                     <input id='image-input' multiple type='file' onClick={handleClick} className='hidden' accept='image/*' />
                                 </i>
                             </li>
                             <li>
-                                <i bb='bb' id='video-attachment' className="bi bi-youtube" onClick={handleUploadFile}>
+                                <i id='video-attachment' className="bi bi-youtube" onClick={handleUploadFile}>
                                     <input id='video-input' multiple type='file' onClick={handleClick} className='hidden' accept='video/*' />
                                 </i>
                             </li>
@@ -88,8 +105,9 @@ export default function ExplorePage({ sessionID }) {
                             <li>
                                 <i className='bi bi-emoji-smile' onClick={handleTogglePicker}></i>
                             </li>
-                            <li>
-                                <i className='bi bi-calendar-date '></i>
+                            <li className='flex space-x-2 justify-between'>
+                                <i className='bi bi-calendar-date' onClick={handleToggleCalendar}></i>
+                                {toggleCalendar ? (<Datetime onChange={handleSelectDate} value={state.publishAt} />) : null}
                             </li>
                         </ul>
                     </div>
@@ -156,14 +174,14 @@ function VotePanel({ hideVotePanel }) {
         })
     }
 
-    const handleRemoteOption = e => {
-        let options = [...state.options]
-        let newOptions = []
-        for (let i = 0; i < options.length; i++) {
-            if (e.target.id !== i) {
-                newOptions.push(options[i])
-            }
-        }
+    const handleRemoveOption = e => {
+        let index = e.target.id
+        let { options } = state
+        let newOptions = [...options.slice(0, index), ...options.slice(index + 1)]
+        setState({
+            ...state,
+            options: newOptions
+        })
     }
 
     return (
@@ -198,7 +216,7 @@ function VotePanel({ hideVotePanel }) {
                         <div key={i} className='flex space-x-2'>
                             {state.type === 'text' ? null : <img className='border w-5 h-5 rounded-sm ' url={option.url}></img>}
                             <input className='border w-full py-1 px-2' defaultValue={option.content} />
-                            <i id={i} className='bi bi-x text-lg text-red-600' onClick={handleRemoteOption}></i>
+                            <i id={i} className='bi bi-x text-lg text-red-600' onClick={handleRemoveOption}></i>
                         </div>
                     ))}
                     <button className='text-sm text-cyan-600' onClick={handleAppendOption}><span className='p-1'>+</span>选项</button>
