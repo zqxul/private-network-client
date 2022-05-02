@@ -69,7 +69,7 @@ export default function ExplorePage({ sessionID }) {
         setToggleCalendar(!calendar)
     }
 
-    const handleSelectDate = date =>{
+    const handleSelectDate = date => {
         console.log(date)
         setState({
             ...state,
@@ -214,7 +214,14 @@ function VotePanel({ hideVotePanel }) {
                 <div className='flex flex-col space-y-1 p-2'>
                     {state.options.map((option, i) => (
                         <div key={i} className='flex space-x-2'>
-                            {state.type === 'text' ? null : <img className='border w-5 h-5 rounded-sm ' url={option.url}></img>}
+                            {
+                                state.type === 'text' ? null : (
+                                    <div>
+                                        <input className='border w-5 h-5 rounded-sm' type='image' src={option.url} />
+                                        <input className='hidden' type='file' />
+                                    </div>
+                                )
+                            }
                             <input className='border w-full py-1 px-2' defaultValue={option.content} />
                             <i id={i} className='bi bi-x text-lg text-red-600' onClick={handleRemoveOption}></i>
                         </div>
