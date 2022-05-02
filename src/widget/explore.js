@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 
 export default function ExplorePage({ sessionID }) {
 
-    const [toggleVote, setToggleVote] = useState(false)
+    const [toggleVote, setToggleVote] = useState(true)
 
     const [state, setState] = useState({
         body: '',
@@ -156,6 +156,16 @@ function VotePanel({ hideVotePanel }) {
         })
     }
 
+    const handleRemoteOption = e => {
+        let options = [...state.options]
+        let newOptions = []
+        for (let i = 0; i < options.length; i++) {
+            if (e.target.id !== i) {
+                newOptions.push(options[i])
+            }
+        }
+    }
+
     return (
         <div className='mx-1 px-2 py-1 flow flow-col w-full border-2 space-y-2 divide-y border-x-rose-400'>
             <div>
@@ -163,22 +173,23 @@ function VotePanel({ hideVotePanel }) {
                     <input type='text' placeholder='投票标题' className='border p-2' defaultValue={state.title} />
                 </div>
                 <div className='flex flex-col space-y-1 text-sm'>
-                    <button className='text-cyan-600' onClick={handleToggleNeedDesc}>+添加说明</button>
+                    <button className='text-cyan-600' onClick={handleToggleNeedDesc}><span className='p-1'>+</span>说明</button>
                     <textarea className='border' hidden={state.needDesc === false} />
                 </div>
             </div>
-            <div className='p-2 flex justify-around text-sm'>
+            <div className='p-2 flex justify-between text-sm'>
                 <span className='text-sm'>投票类型</span>
-                <ul className='flex space-x-2 text-xs'>
-                    <li>
-                        <input type='radio' name='type' value='text' onChange={handleTypeChange} checked={state.type === 'text'} />
-                        <label>文字投票</label>
+                <ul className='flex space-x-8 text-xs'>
+                    <li className='space-x-1'>
+                        <input className='align-middle' type='radio' name='type' value='text' onChange={handleTypeChange} checked={state.type === 'text'} />
+                        <label className='align-middle'>文字投票</label>
                     </li>
-                    <li>
-                        <input type='radio' name='type' value='image' onChange={handleTypeChange} checked={state.type === 'image'} />
-                        <label>图片投票</label>
+                    <li className='space-x-1'>
+                        <input className='align-middle' type='radio' name='type' value='image' onChange={handleTypeChange} checked={state.type === 'image'} />
+                        <label className='align-middle'>图片投票</label>
                     </li>
                 </ul>
+                <div></div>
             </div>
             <div className='flex flex-col p-2 text-xs'>
                 <span className='text-sm'>投票选项</span>
@@ -187,9 +198,10 @@ function VotePanel({ hideVotePanel }) {
                         <div key={i} className='flex space-x-2'>
                             {state.type === 'text' ? null : <img className='border w-5 h-5 rounded-sm ' url={option.url}></img>}
                             <input className='border w-full py-1 px-2' defaultValue={option.content} />
+                            <i id={i} className='bi bi-x text-lg text-red-600' onClick={handleRemoteOption}></i>
                         </div>
                     ))}
-                    <button className='text-sm text-cyan-600' onClick={handleAppendOption}>+添加选项</button>
+                    <button className='text-sm text-cyan-600' onClick={handleAppendOption}><span className='p-1'>+</span>选项</button>
                 </div>
             </div>
             <div className='flex flex-col space-y-2 p-2 text-xs'>
